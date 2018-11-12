@@ -2,6 +2,9 @@ package stack
 
 import (
 	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"os"
+	"os/signal"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 )
@@ -16,70 +19,56 @@ func New() *Stack {
 	return &Stack{}
 }
 
-// Init ...
-func (s *Stack) Init(provider provider.Provider) error {
+// MustInit ...
+func (s *Stack) MustInit(provider provider.Provider) {
 	if err := provider.Init(); err != nil {
-		return err
+		panic(err)
 	}
 
 	s.providers = append(s.providers, provider)
-
-	return nil
 }
 
-// MustInit ...
-func (s *Stack) MustInit(provider provider.Provider) {
-	if err := s.Init(provider); err != nil {
-		panic(err)
-	}
-}
-
-// Run ...
-func (s *Stack) Run() error {
-	for _, p := range s.providers {
-		runProvider, ok := p.(provider.RunProvider)
-		if ok {
-			go func() {
-				err := runProvider.Run()
-				if err != nil {
-					logrus.WithError(err).Error("Failed to run")
-				}
-			}()
-		}
-	}
-
-	return nil
-}
+var runOnce sync.Once
 
 // MustRun ...
 func (s *Stack) MustRun() {
-	for _, p := range s.providers {
-		runProvider, ok := p.(provider.RunProvider)
-		if ok {
-			go func() {
-				err := runProvider.Run()
-				if err != nil {
-					logrus.WithError(err).Panic("Failed to run")
-				}
-			}()
+	runOnce.Do(func() {
+		for _, p := range s.providers {
+			runProvider, ok := p.(provider.RunProvider)
+			if ok {
+				go func() {
+					err := runProvider.Run()
+					if err != nil {
+						logrus.WithError(err).Panic("Failed to run")
+					}
+				}()
+			}
 		}
-	}
+		s.handleInterrupt()
+	})
 }
 
-// Close ...
-func (s *Stack) Close() error {
-	for i := len(s.providers) - 1; i >= 0; i-- {
-		if err := s.providers[i].Close(); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+var closeOnce sync.Once
 
 // MustClose ...
 func (s *Stack) MustClose() {
-	if err := s.Close(); err != nil {
-		panic(err)
-	}
+	closeOnce.Do(func() {
+		for i := len(s.providers) - 1; i >= 0; i-- {
+			if err := s.providers[i].Close(); err != nil {
+				panic(err)
+			}
+		}
+	})
+}
+
+func (s *Stack) handleInterrupt() {
+	signalChan := make(chan os.Signal, 1)
+	cleanupDone := make(chan struct{})
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+		<-signalChan
+		s.MustClose()
+		close(cleanupDone)
+	}()
+	<-cleanupDone
 }
