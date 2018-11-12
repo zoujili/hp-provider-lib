@@ -17,5 +17,9 @@ func main() {
 	prometheusProvider := provider.NewPrometheus(prometheusConfig)
 	stack.MustInit(prometheusProvider)
 
+	pprofConfig := provider.NewPProfConfigFromEnv()
+	pprofProvider := provider.NewPProf(pprofConfig)
+	stack.MustInit(pprofProvider)
+
 	stack.MustRun()
 }

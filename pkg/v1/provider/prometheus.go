@@ -11,12 +11,17 @@ import (
 
 // PrometheusConfig ...
 type PrometheusConfig struct {
+	Enabled  bool
 	Port     int
 	Endpoint string
 }
 
 // NewPrometheusConfigFromEnv ...
 func NewPrometheusConfigFromEnv() *PrometheusConfig {
+	viper.SetDefault("PROMETHEUS_ENABLED", true)
+	viper.BindEnv("PROMETHEUS_ENABLED")
+	enabled := viper.GetBool("PROMETHEUS_ENABLED")
+
 	viper.SetDefault("PROMETHEUS_PORT", 9090)
 	viper.BindEnv("PROMETHEUS_PORT")
 	port := viper.GetInt("PROMETHEUS_PORT")
@@ -25,7 +30,14 @@ func NewPrometheusConfigFromEnv() *PrometheusConfig {
 	viper.BindEnv("PROMETHEUS_ENDPOINT")
 	endpoint := viper.GetString("PROMETHEUS_ENDPOINT")
 
+	logrus.WithFields(logrus.Fields{
+		"enabled":  enabled,
+		"port":     port,
+		"endpoint": endpoint,
+	}).Info("Prometheus Config Initialized")
+
 	return &PrometheusConfig{
+		Enabled:  enabled,
 		Port:     port,
 		Endpoint: endpoint,
 	}
@@ -51,6 +63,11 @@ func (p *Prometheus) Init() error {
 
 // Run ...
 func (p *Prometheus) Run() error {
+	if !p.Config.Enabled {
+		logrus.Info("Prometheus Provider Not Enabled")
+		return nil
+	}
+
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
 	logger := logrus.WithFields(logrus.Fields{

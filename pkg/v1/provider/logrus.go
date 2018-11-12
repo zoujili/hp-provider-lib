@@ -55,6 +55,17 @@ func NewLogrusConfigFromEnv() *LogrusConfig {
 		output = os.Stdout
 	}
 
+	// One-Off logger
+	logger := logrus.New()
+	logger.SetLevel(level)
+	logger.Formatter = formatter
+	logger.SetOutput(output)
+	logger.WithFields(logrus.Fields{
+		"level":     viper.GetString("LOGRUS_LEVEL"),
+		"formatter": viper.GetString("LOGRUS_FORMATTER"),
+		"output":    viper.GetString("LOGRUS_OUTPUT"),
+	}).Info("Logrus Config Initialized")
+
 	return &LogrusConfig{
 		Level:     level,
 		Formatter: formatter,
