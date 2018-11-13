@@ -13,6 +13,10 @@ func main() {
 	logrusProvider := provider.NewLogrus(logrusConfig)
 	stack.MustInit(logrusProvider)
 
+	probesConfig := provider.NewProbesConfigEnv()
+	probesProvider := provider.NewProbes(probesConfig)
+	stack.MustInit(probesProvider)
+
 	prometheusConfig := provider.NewPrometheusConfigFromEnv()
 	prometheusProvider := provider.NewPrometheus(prometheusConfig)
 	stack.MustInit(prometheusProvider)
