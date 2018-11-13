@@ -57,7 +57,6 @@ func NewPrometheus(config *PrometheusConfig) *Prometheus {
 
 // Init ...
 func (p *Prometheus) Init() error {
-	logrus.Info("Prometheus Provider Initialized")
 	return nil
 }
 
@@ -89,6 +88,5 @@ func (p *Prometheus) Run() error {
 
 // Close ...
 func (p *Prometheus) Close() error {
-	logrus.Info("Prometheus Provider Closed")
 	return nil
 }

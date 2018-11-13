@@ -57,7 +57,6 @@ func NewPProf(config *PProfConfig) *PProf {
 
 // Init ...
 func (p *PProf) Init() error {
-	logrus.Info("PProf Provider Initialized")
 	return nil
 }
 
@@ -92,6 +91,5 @@ func (p *PProf) Run() error {
 
 // Close ...
 func (p *PProf) Close() error {
-	logrus.Info("PProf Provider Closed")
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"os"
 	"os/signal"
+	"reflect"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -21,11 +22,16 @@ func New() *Stack {
 
 // MustInit ...
 func (s *Stack) MustInit(provider provider.Provider) {
+	name := name(provider)
+	logrus.Info(name + " Initializing...")
+
 	if err := provider.Init(); err != nil {
 		panic(err)
 	}
 
 	s.providers = append(s.providers, provider)
+
+	logrus.Info(name + " Initialized")
 }
 
 var runOnce sync.Once
@@ -37,6 +43,9 @@ func (s *Stack) MustRun() {
 			runProvider, ok := p.(provider.RunProvider)
 			if ok {
 				go func() {
+					name := name(runProvider)
+					logrus.Info(name + " Running...")
+
 					err := runProvider.Run()
 					if err != nil {
 						logrus.WithError(err).Panic("Failed to run")
@@ -54,9 +63,14 @@ var closeOnce sync.Once
 func (s *Stack) MustClose() {
 	closeOnce.Do(func() {
 		for i := len(s.providers) - 1; i >= 0; i-- {
+			name := name(s.providers[i])
+			logrus.Info(name + " Closing...")
+
 			if err := s.providers[i].Close(); err != nil {
 				panic(err)
 			}
+
+			logrus.Info(name + " Closed")
 		}
 	})
 }
@@ -71,4 +85,8 @@ func (s *Stack) handleInterrupt() {
 		close(cleanupDone)
 	}()
 	<-cleanupDone
+}
+
+func name(provider interface{}) string {
+	return reflect.TypeOf(provider).Elem().String()
 }

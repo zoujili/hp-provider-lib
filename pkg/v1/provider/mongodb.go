@@ -92,7 +92,6 @@ func (p *MongoDB) Init() error {
 		p.probesProvider.AddLivenessProbes(p.livenessProbe)
 	}
 
-	logrus.Info("MongoDB Provider Initialized")
 	return nil
 }
 
@@ -107,7 +106,6 @@ func (p *MongoDB) Close() error {
 		return err
 	}
 
-	logrus.Info("MongoDB Provider Closed")
 	return nil
 }
 

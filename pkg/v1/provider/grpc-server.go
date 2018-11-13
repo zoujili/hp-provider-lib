@@ -86,7 +86,6 @@ func (p *GRPCServer) Init() error {
 		),
 	)
 
-	logrus.Info("GRPCServer Provider Initialized")
 	return nil
 }
 
@@ -119,7 +118,6 @@ func (p *GRPCServer) Run() error {
 func (p *GRPCServer) Close() error {
 	p.Server.GracefulStop()
 
-	logrus.Info("GRPCServer Provider Closed")
 	return nil
 }
 

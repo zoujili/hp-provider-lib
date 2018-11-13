@@ -92,7 +92,6 @@ func (p *Jaeger) Init() error {
 	opentracing.SetGlobalTracer(tracer)
 	p.closer = closer
 
-	logrus.Info("Jaeger Provider Initialized")
 	return nil
 }
 
@@ -104,7 +103,6 @@ func (p *Jaeger) Close() error {
 		return err
 	}
 
-	logrus.Info("Jaeger Provider Closed")
 	return nil
 }
 

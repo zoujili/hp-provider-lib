@@ -97,12 +97,10 @@ func (p *Logrus) Init() error {
 		logrus.SetOutput(p.Config.Output)
 	}
 
-	logrus.Info("Logrus Provider Initialized")
 	return nil
 }
 
 // Close ...
 func (p *Logrus) Close() error {
-	logrus.Info("Logrus Provider Closed")
 	return nil
 }

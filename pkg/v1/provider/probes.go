@@ -69,7 +69,6 @@ func NewProbes(config *ProbesConfig) *Probes {
 
 // Init ...
 func (p *Probes) Init() error {
-	logrus.Info("Probes Provider Initialized")
 	return nil
 }
 
@@ -103,7 +102,6 @@ func (p *Probes) Run() error {
 
 // Close ...
 func (p *Probes) Close() error {
-	logrus.Info("Probes Provider Closed")
 	return nil
 }
 

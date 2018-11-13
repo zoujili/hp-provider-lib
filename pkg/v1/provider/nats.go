@@ -87,7 +87,6 @@ func (p *Nats) Init() error {
 		p.probesProvider.AddLivenessProbes(p.livenessProbe)
 	}
 
-	logrus.Info("Nats Provider Initialized")
 	return nil
 }
 
@@ -95,7 +94,6 @@ func (p *Nats) Init() error {
 func (p *Nats) Close() error {
 	p.Client.Close()
 
-	logrus.Info("Nats Provider Closed")
 	return nil
 }
 
