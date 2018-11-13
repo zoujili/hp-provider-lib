@@ -13,21 +13,25 @@ func main() {
 	logrusProvider := provider.NewLogrus(logrusConfig)
 	stack.MustInit(logrusProvider)
 
-	probesConfig := provider.NewProbesConfigEnv()
-	probesProvider := provider.NewProbes(probesConfig)
-	stack.MustInit(probesProvider)
-
 	prometheusConfig := provider.NewPrometheusConfigFromEnv()
 	prometheusProvider := provider.NewPrometheus(prometheusConfig)
 	stack.MustInit(prometheusProvider)
+
+	jaegerConfig := provider.NewJaegerConfigFromEnv()
+	jaegerProvider := provider.NewJaeger(jaegerConfig)
+	stack.MustInit(jaegerProvider)
 
 	pprofConfig := provider.NewPProfConfigFromEnv()
 	pprofProvider := provider.NewPProf(pprofConfig)
 	stack.MustInit(pprofProvider)
 
-	jaegerConfig := provider.NewJaegerConfigFromEnv()
-	jaegerProvider := provider.NewJaeger(jaegerConfig)
-	stack.MustInit(jaegerProvider)
+	probesConfig := provider.NewProbesConfigEnv()
+	probesProvider := provider.NewProbes(probesConfig)
+	stack.MustInit(probesProvider)
+
+	mongodbConfig := provider.NewMongoDBConfigEnv()
+	mongodbProvider := provider.NewMongoDB(mongodbConfig)
+	stack.MustInit(mongodbProvider)
 
 	stack.MustRun()
 }

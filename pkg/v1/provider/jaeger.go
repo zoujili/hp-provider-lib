@@ -85,6 +85,7 @@ func (p *Jaeger) Init() error {
 	)
 
 	if err != nil {
+		logrus.WithError(err).Error("Jaeger Provider Initialization Failed")
 		return err
 	}
 
@@ -97,7 +98,11 @@ func (p *Jaeger) Init() error {
 
 // Close ...
 func (p *Jaeger) Close() error {
-	p.closer.Close()
+	err := p.closer.Close()
+	if err != nil {
+		logrus.WithError(err).Info("Jaeger Provider Close Failed")
+		return err
+	}
 
 	logrus.Info("Jaeger Provider Closed")
 	return nil
