@@ -21,5 +21,9 @@ func main() {
 	pprofProvider := provider.NewPProf(pprofConfig)
 	stack.MustInit(pprofProvider)
 
+	jaegerConfig := provider.NewJaegerConfigFromEnv()
+	jaegerProvider := provider.NewJaeger(jaegerConfig)
+	stack.MustInit(jaegerProvider)
+
 	stack.MustRun()
 }
