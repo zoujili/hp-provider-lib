@@ -37,5 +37,7 @@ func main() {
 	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	stack.MustInit(natsProvider)
 
+	// Do other stuff here
+
 	stack.MustRun()
 }
