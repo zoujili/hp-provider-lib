@@ -33,5 +33,9 @@ func main() {
 	mongodbProvider := provider.NewMongoDB(mongodbConfig)
 	stack.MustInit(mongodbProvider)
 
+	natsConfig := provider.NewNatsConfigEnv()
+	natsProvider := provider.NewNats(natsConfig)
+	stack.MustInit(natsProvider)
+
 	stack.MustRun()
 }
