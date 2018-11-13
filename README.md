@@ -164,6 +164,24 @@ NewNatsConfigEnv() config:
 
 ---
 
+### GRPCServerProvider
+
+Will setup a reusable GRPC server configured with middleware
+
+```go
+grpcServerConfig := provider.NewGRPCServerConfigEnv()
+grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+stack.MustInit(grpcServerProvider)
+```
+
+NewGRPCServerConfigEnv() config:
+
+| ENV key | ENV value | Default value |
+| --- | --- | --- |
+| GRPCSERVER_PORT | int | 3000 |
+
+---
+
 ## Example usage
 
 ```go
@@ -205,6 +223,10 @@ func main() {
     natsConfig := provider.NewNatsConfigEnv()
     natsProvider := provider.NewNats(natsConfig, probesProvider)
     stack.MustInit(natsProvider)
+
+    grpcServerConfig := provider.NewGRPCServerConfigEnv()
+    grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+    stack.MustInit(grpcServerProvider)
 
     // Do other stuff here
 

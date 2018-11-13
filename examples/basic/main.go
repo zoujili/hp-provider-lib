@@ -37,6 +37,10 @@ func main() {
 	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	stack.MustInit(natsProvider)
 
+	grpcServerConfig := provider.NewGRPCServerConfigEnv()
+	grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+	stack.MustInit(grpcServerProvider)
+
 	// Do other stuff here
 
 	stack.MustRun()

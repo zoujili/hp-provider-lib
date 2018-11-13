@@ -81,6 +81,7 @@ func (p *Prometheus) Run() error {
 	logger.Info("Prometheus Provider Launched")
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		logger.WithError(err).Error("Prometheus Provider Launch Failed")
+		return err
 	}
 
 	return nil

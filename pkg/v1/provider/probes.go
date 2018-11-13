@@ -95,6 +95,7 @@ func (p *Probes) Run() error {
 	logger.Info("Probes Provider Launched")
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		logger.WithError(err).Error("Probes Provider Launch Failed")
+		return err
 	}
 
 	return nil
