@@ -110,6 +110,8 @@ func (p *Probes) livenessHandler(w http.ResponseWriter, r *http.Request) {
 	for _, probe := range p.livenessProbes {
 		if err := probe(); err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
+			w.Write([]byte(err.Error()))
+			return
 		}
 	}
 	w.WriteHeader(http.StatusOK)
@@ -119,6 +121,8 @@ func (p *Probes) readinessHandler(w http.ResponseWriter, r *http.Request) {
 	for _, probe := range p.readinessProbes {
 		if err := probe(); err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
+			w.Write([]byte(err.Error()))
+			return
 		}
 	}
 	w.WriteHeader(http.StatusOK)

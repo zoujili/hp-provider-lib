@@ -45,16 +45,18 @@ func NewMongoDBConfigEnv() *MongoDBConfig {
 
 // MongoDB ...
 type MongoDB struct {
-	Config *MongoDBConfig
+	Config         *MongoDBConfig
+	probesProvider *Probes
 
 	Client   *mongo.Client
 	Database *mongo.Database
 }
 
 // NewMongoDB ...
-func NewMongoDB(config *MongoDBConfig) *MongoDB {
+func NewMongoDB(config *MongoDBConfig, probesProvider *Probes) *MongoDB {
 	return &MongoDB{
-		Config: config,
+		Config:         config,
+		probesProvider: probesProvider,
 	}
 }
 
@@ -86,6 +88,10 @@ func (p *MongoDB) Init() error {
 	p.Client = client
 	p.Database = db
 
+	if p.probesProvider != nil {
+		p.probesProvider.AddLivenessProbes(p.livenessProbe)
+	}
+
 	logrus.Info("MongoDB Provider Initialized")
 	return nil
 }
@@ -102,5 +108,20 @@ func (p *MongoDB) Close() error {
 	}
 
 	logrus.Info("MongoDB Provider Closed")
+	return nil
+}
+
+func (p *MongoDB) livenessProbe() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := p.Client.Ping(ctx, nil)
+	if err != nil {
+		logrus.WithError(err).Error("MongoDB LivenessProbe Failed")
+		return err
+	}
+
+	logrus.Debug("MongoDB LivenessProbe Succeeded")
+
 	return nil
 }

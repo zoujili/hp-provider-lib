@@ -30,11 +30,11 @@ func main() {
 	stack.MustInit(probesProvider)
 
 	mongodbConfig := provider.NewMongoDBConfigEnv()
-	mongodbProvider := provider.NewMongoDB(mongodbConfig)
+	mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider)
 	stack.MustInit(mongodbProvider)
 
 	natsConfig := provider.NewNatsConfigEnv()
-	natsProvider := provider.NewNats(natsConfig)
+	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	stack.MustInit(natsProvider)
 
 	stack.MustRun()

@@ -40,22 +40,23 @@ func NewNatsConfigEnv() *NatsConfig {
 
 // Nats ...
 type Nats struct {
-	Config *NatsConfig
+	Config         *NatsConfig
+	probesProvider *Probes
 
 	Client *nats.Conn
 }
 
 // NewNats ...
-func NewNats(config *NatsConfig) *Nats {
+func NewNats(config *NatsConfig, probesProvider *Probes) *Nats {
 	return &Nats{
-		Config: config,
+		Config:         config,
+		probesProvider: probesProvider,
 	}
 }
 
 // Init ...
 func (p *Nats) Init() error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx := context.Background()
 
 	cd := &customDialer{
 		ctx:             ctx,
@@ -82,6 +83,10 @@ func (p *Nats) Init() error {
 
 	p.Client = client
 
+	if p.probesProvider != nil {
+		p.probesProvider.AddLivenessProbes(p.livenessProbe)
+	}
+
 	logrus.Info("Nats Provider Initialized")
 	return nil
 }
@@ -106,8 +111,9 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 	defer cancel()
 
 	for {
-		logrus.Debug("Attempting to connect to", address)
+		logrus.Debug("Attempting to connect to: ", address)
 		if ctx.Err() != nil {
+			logrus.WithError(ctx.Err()).Error("Nats ctx error")
 			return nil, ctx.Err()
 		}
 
@@ -124,4 +130,16 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 			time.Sleep(cd.connectTimeWait)
 		}
 	}
+}
+
+func (p *Nats) livenessProbe() error {
+	if !p.Client.IsConnected() {
+		err := errors.New("Nats client not connected")
+		logrus.WithError(err).Error("Nats LivenessProbe Failed")
+		return err
+	}
+
+	logrus.Debug("Nats LivenessProbe Succeeded")
+
+	return nil
 }
