@@ -18,8 +18,8 @@ type MongoDBConfig struct {
 	MaxConnsPerHost uint16
 }
 
-// NewMongoDBConfigEnv ...
-func NewMongoDBConfigEnv() *MongoDBConfig {
+// NewMongoDBConfigFromEnv ...
+func NewMongoDBConfigFromEnv() *MongoDBConfig {
 	viper.SetDefault("MONGODB_URI", "mongodb://127.0.0.1:27017")
 	viper.BindEnv("MONGODB_URI")
 	uri := viper.GetString("MONGODB_URI")

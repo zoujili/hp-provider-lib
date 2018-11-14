@@ -24,8 +24,8 @@ type GRPCServerConfig struct {
 	Port int
 }
 
-// NewGRPCServerConfigEnv ...
-func NewGRPCServerConfigEnv() *GRPCServerConfig {
+// NewGRPCServerConfigFromEnv ...
+func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
 	viper.SetDefault("GRPCSERVER_PORT", 3000)
 	viper.BindEnv("GRPCSERVER_PORT")
 	port := viper.GetInt("GRPCSERVER_PORT")

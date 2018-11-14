@@ -16,8 +16,8 @@ type ProbesConfig struct {
 	ReadinessEndpoint string
 }
 
-// NewProbesConfigEnv ...
-func NewProbesConfigEnv() *ProbesConfig {
+// NewProbesConfigFromEnv ...
+func NewProbesConfigFromEnv() *ProbesConfig {
 	viper.SetDefault("PROBES_ENABLED", true)
 	viper.BindEnv("PROBES_ENABLED")
 	enabled := viper.GetBool("PROBES_ENABLED")

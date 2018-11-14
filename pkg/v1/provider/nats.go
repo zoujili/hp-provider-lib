@@ -17,8 +17,8 @@ type NatsConfig struct {
 	Timeout time.Duration
 }
 
-// NewNatsConfigEnv ...
-func NewNatsConfigEnv() *NatsConfig {
+// NewNatsConfigFromEnv ...
+func NewNatsConfigFromEnv() *NatsConfig {
 	viper.SetDefault("NATS_URI", "nats://127.0.0.1:4222")
 	viper.BindEnv("NATS_URI")
 	uri := viper.GetString("NATS_URI")

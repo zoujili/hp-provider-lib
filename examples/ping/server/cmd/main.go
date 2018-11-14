@@ -14,7 +14,7 @@ func main() {
 	logrusProvider := provider.NewLogrus(logrusConfig)
 	stack.MustInit(logrusProvider)
 
-	appConfig := provider.NewAppConfigEnv()
+	appConfig := provider.NewAppConfigFromEnv()
 	appProvider := provider.NewApp(appConfig)
 	stack.MustInit(appProvider)
 
@@ -30,11 +30,11 @@ func main() {
 	pprofProvider := provider.NewPProf(pprofConfig)
 	stack.MustInit(pprofProvider)
 
-	probesConfig := provider.NewProbesConfigEnv()
+	probesConfig := provider.NewProbesConfigFromEnv()
 	probesProvider := provider.NewProbes(probesConfig)
 	stack.MustInit(probesProvider)
 
-	grpcServerConfig := provider.NewGRPCServerConfigEnv()
+	grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
 	grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
 	stack.MustInit(grpcServerProvider)
 

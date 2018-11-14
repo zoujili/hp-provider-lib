@@ -14,8 +14,8 @@ type AppConfig struct {
 	Name string
 }
 
-// NewAppConfigEnv ...
-func NewAppConfigEnv() *AppConfig {
+// NewAppConfigFromEnv ...
+func NewAppConfigFromEnv() *AppConfig {
 	viper.SetDefault("APP_NAME", os.Args[0])
 	viper.BindEnv("APP_NAME")
 	name := viper.GetString("APP_NAME")

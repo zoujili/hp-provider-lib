@@ -13,7 +13,7 @@ func main() {
 	logrusProvider := provider.NewLogrus(logrusConfig)
 	stack.MustInit(logrusProvider)
 
-	appConfig := provider.NewAppConfigEnv()
+	appConfig := provider.NewAppConfigFromEnv()
 	appProvider := provider.NewApp(appConfig)
 	stack.MustInit(appProvider)
 
@@ -29,19 +29,19 @@ func main() {
 	pprofProvider := provider.NewPProf(pprofConfig)
 	stack.MustInit(pprofProvider)
 
-	probesConfig := provider.NewProbesConfigEnv()
+	probesConfig := provider.NewProbesConfigFromEnv()
 	probesProvider := provider.NewProbes(probesConfig)
 	stack.MustInit(probesProvider)
 
-	mongodbConfig := provider.NewMongoDBConfigEnv()
+	mongodbConfig := provider.NewMongoDBConfigFromEnv()
 	mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
 	stack.MustInit(mongodbProvider)
 
-	natsConfig := provider.NewNatsConfigEnv()
+	natsConfig := provider.NewNatsConfigFromEnv()
 	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	stack.MustInit(natsProvider)
 
-	grpcServerConfig := provider.NewGRPCServerConfigEnv()
+	grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
 	grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
 	stack.MustInit(grpcServerProvider)
 
