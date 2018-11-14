@@ -135,11 +135,12 @@ stack.MustInit(mongodbProvider)
 
 NewMongoDBConfigEnv() config:
 
-| ENV key | ENV value | Default value |
-| --- | --- | --- |
-| MONGODB_URI | string | mongodb://127.0.0.1:27017 |
-| MONGODB_DATABASE | string | test |
-| MONGODB_TIMEOUT | int | 20 |
+| ENV key | ENV value | Default value | Desc |
+| --- | --- | --- | --- |
+| MONGODB_URI | string | mongodb://127.0.0.1:27017 | uri |
+| MONGODB_DATABASE | string | test | Database to use |
+| MONGODB_TIMEOUT | int | 20 | Max time to connect to DB |
+| MONGODB_MAX_CONNS_PER_HOST | int | 16 | Max connection pool size |
 
 ---
 
@@ -157,10 +158,10 @@ stack.MustInit(natsProvider)
 
 NewNatsConfigEnv() config:
 
-| ENV key | ENV value | Default value |
-| --- | --- | --- |
-| NATS_URI | string | nats://127.0.0.1:4222 |
-| NATS_TIMEOUT | int | 20 |
+| ENV key | ENV value | Default value | Desc |
+| --- | --- | --- | --- |
+| NATS_URI | string | nats://127.0.0.1:4222 | uri |
+| NATS_TIMEOUT | int | 20 | Max time to connect to Nats |
 
 ---
 

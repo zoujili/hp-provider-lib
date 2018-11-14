@@ -5,15 +5,17 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/mongo/clientopt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 // MongoDBConfig ...
 type MongoDBConfig struct {
-	URI      string
-	Database string
-	Timeout  time.Duration
+	URI             string
+	Database        string
+	Timeout         time.Duration
+	MaxConnsPerHost uint16
 }
 
 // NewMongoDBConfigEnv ...
@@ -30,16 +32,22 @@ func NewMongoDBConfigEnv() *MongoDBConfig {
 	viper.BindEnv("MONGODB_TIMEOUT")
 	timeout := viper.GetDuration("MONGODB_TIMEOUT") * time.Second
 
+	viper.SetDefault("MONGODB_MAX_CONNS_PER_HOST", 16)
+	viper.BindEnv("MONGODB_MAX_CONNS_PER_HOST")
+	maxConnsPerHost := uint16(viper.GetInt("MONGODB_MAX_CONNS_PER_HOST"))
+
 	logrus.WithFields(logrus.Fields{
-		"uri":      uri,
-		"database": database,
-		"timeout":  timeout,
+		"uri":                uri,
+		"database":           database,
+		"timeout":            timeout,
+		"max_conns_per_host": maxConnsPerHost,
 	}).Info("MongoDB Config Initialized")
 
 	return &MongoDBConfig{
-		URI:      uri,
-		Database: database,
-		Timeout:  timeout,
+		URI:             uri,
+		Database:        database,
+		Timeout:         timeout,
+		MaxConnsPerHost: maxConnsPerHost,
 	}
 }
 
@@ -62,9 +70,14 @@ func NewMongoDB(config *MongoDBConfig, probesProvider *Probes) *MongoDB {
 
 // Init ...
 func (p *MongoDB) Init() error {
-	client, err := mongo.NewClient(p.Config.URI)
+	client, err := mongo.NewClientWithOptions(
+		p.Config.URI,
+		clientopt.AppName("ddd"),
+		clientopt.MaxConnsPerHost(p.Config.MaxConnsPerHost),
+		clientopt.MaxIdleConnsPerHost(p.Config.MaxConnsPerHost),
+	)
 	if err != nil {
-		logrus.WithError(err).Error("MongoDB Provider Initialization Failed")
+		logrus.WithError(err).Error("MongoDB Client Creation Failed")
 		return err
 	}
 
@@ -73,13 +86,13 @@ func (p *MongoDB) Init() error {
 
 	err = client.Connect(ctx)
 	if err != nil {
-		logrus.WithError(err).Error("MongoDB Provider Initialization Failed")
+		logrus.WithError(err).Error("MongoDB Connect Failed")
 		return err
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		logrus.WithError(err).Error("MongoDB Provider Initialization Failed")
+		logrus.WithError(err).Error("MongoDB Ping Failed")
 		return err
 	}
 
