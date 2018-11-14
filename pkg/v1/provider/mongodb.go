@@ -72,12 +72,16 @@ func NewMongoDB(config *MongoDBConfig, probesProvider *Probes, appProvider *App)
 
 // Init ...
 func (p *MongoDB) Init() error {
-	client, err := mongo.NewClientWithOptions(
-		p.Config.URI,
-		clientopt.AppName(p.appProvider.Name()),
+	opts := []clientopt.Option{
 		clientopt.MaxConnsPerHost(p.Config.MaxConnsPerHost),
 		clientopt.MaxIdleConnsPerHost(p.Config.MaxConnsPerHost),
-	)
+	}
+
+	if p.appProvider != nil {
+		opts = append(opts, clientopt.AppName(p.appProvider.Name()))
+	}
+
+	client, err := mongo.NewClientWithOptions(p.Config.URI, opts...)
 	if err != nil {
 		logrus.WithError(err).Error("MongoDB Client Creation Failed")
 		return err
