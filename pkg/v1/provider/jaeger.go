@@ -3,7 +3,6 @@ package provider
 import (
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	opentracing "github.com/opentracing/opentracing-go"
@@ -49,27 +48,27 @@ func NewJaegerConfigFromEnv() *JaegerConfig {
 
 // Jaeger ...
 type Jaeger struct {
-	Config *JaegerConfig
+	Config      *JaegerConfig
+	appProvider *App
 
 	closer io.Closer
 }
 
 // NewJaeger ...
-func NewJaeger(config *JaegerConfig) *Jaeger {
+func NewJaeger(config *JaegerConfig, appProvider *App) *Jaeger {
 	return &Jaeger{
-		Config: config,
+		Config:      config,
+		appProvider: appProvider,
 	}
 }
 
 // Init ...
 func (p *Jaeger) Init() error {
-	serviceName := os.Args[0]
-
 	metrics := prometheus.New()
 	logger := &logrusLogger{}
 
 	tracer, closer, err := config.Configuration{
-		ServiceName: serviceName,
+		ServiceName: p.appProvider.Name(),
 		Disabled:    !p.Config.Enabled,
 		Sampler: &config.SamplerConfig{
 			Type:  "const",

@@ -6,6 +6,43 @@ FitStation provider library for golang, that provide generic an consitent setup 
 
 Clone repository into $GOPATH/src/fitstation-hp/lib-fs-provider-go
 
+## Run basic examples
+
+```shell
+$ LOGRUS_FORMATTER=text APP_NAME=basic go run examples/basic/main.go
+```
+
+## Run advanced examples
+
+```shell
+// Start Jaeger backend
+$ docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.7
+
+// Run Server
+$ LOGRUS_FORMATTER=text APP_NAME=ping-server go run examples/ping/server/cmd/main.go
+
+// Run normal call
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go hello
+
+// Run call that panics on server side
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go panic
+
+// Run call that errors on server side
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go error
+
+// open web browser at http://127.0.0.1:16686
+// to view traces
+```
+
 ## Providers
 
 ### LogrusProvider
@@ -25,6 +62,31 @@ NewLogrusConfigFromEnv() config:
 | LOGRUS_LEVEL | string [panic, fatal, error, warn, info, debug]| info |
 | LOGRUS_FORMATTER | string [text, json]| json |
 | LOGRUS_OUTPUT | string [stderr, stdout]| stderr |
+
+---
+
+### AppProvider
+
+Stores App info like name, version, ...
+
+```go
+appConfig := provider.NewAppConfigEnv()
+appProvider := provider.NewApp(appConfig)
+stack.MustInit(appProvider)
+```
+
+NewAppConfigEnv() config:
+
+| ENV key | ENV value | Default value |
+| --- | --- | --- |
+| APP_NAME | string | os.Args[0] = name of the binary |
+
+App provider exposes methods
+
+```go
+appProvider.Name()
+appProvider.Version() // Injected by compiler
+```
 
 ---
 
@@ -54,7 +116,7 @@ Will setup global opentracing with jaeger backend
 
 ```go
 jaegerConfig := provider.NewJaegerConfigFromEnv()
-jaegerProvider := provider.NewJaeger(jaegerConfig)
+jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
 stack.MustInit(jaegerProvider)
 ```
 
@@ -129,7 +191,7 @@ Usage of the probeProvider is optional, if set: the probe will return succesfull
 
 ```go
 mongodbConfig := provider.NewMongoDBConfigEnv()
-mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider)
+mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
 stack.MustInit(mongodbProvider)
 ```
 
@@ -201,12 +263,16 @@ func main() {
     logrusProvider := provider.NewLogrus(logrusConfig)
     stack.MustInit(logrusProvider)
 
+    appConfig := provider.NewAppConfigEnv()
+    appProvider := provider.NewApp(appConfig)
+    stack.MustInit(appProvider)
+
     prometheusConfig := provider.NewPrometheusConfigFromEnv()
     prometheusProvider := provider.NewPrometheus(prometheusConfig)
     stack.MustInit(prometheusProvider)
 
     jaegerConfig := provider.NewJaegerConfigFromEnv()
-    jaegerProvider := provider.NewJaeger(jaegerConfig)
+    jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
     stack.MustInit(jaegerProvider)
 
     pprofConfig := provider.NewPProfConfigFromEnv()
@@ -218,7 +284,7 @@ func main() {
     stack.MustInit(probesProvider)
 
     mongodbConfig := provider.NewMongoDBConfigEnv()
-    mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider)
+    mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
     stack.MustInit(mongodbProvider)
 
     natsConfig := provider.NewNatsConfigEnv()

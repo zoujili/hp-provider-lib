@@ -14,12 +14,16 @@ func main() {
 	logrusProvider := provider.NewLogrus(logrusConfig)
 	stack.MustInit(logrusProvider)
 
+	appConfig := provider.NewAppConfigEnv()
+	appProvider := provider.NewApp(appConfig)
+	stack.MustInit(appProvider)
+
 	prometheusConfig := provider.NewPrometheusConfigFromEnv()
 	prometheusProvider := provider.NewPrometheus(prometheusConfig)
 	stack.MustInit(prometheusProvider)
 
 	jaegerConfig := provider.NewJaegerConfigFromEnv()
-	jaegerProvider := provider.NewJaeger(jaegerConfig)
+	jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
 	stack.MustInit(jaegerProvider)
 
 	pprofConfig := provider.NewPProfConfigFromEnv()

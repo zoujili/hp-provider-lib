@@ -55,16 +55,18 @@ func NewMongoDBConfigEnv() *MongoDBConfig {
 type MongoDB struct {
 	Config         *MongoDBConfig
 	probesProvider *Probes
+	appProvider    *App
 
 	Client   *mongo.Client
 	Database *mongo.Database
 }
 
 // NewMongoDB ...
-func NewMongoDB(config *MongoDBConfig, probesProvider *Probes) *MongoDB {
+func NewMongoDB(config *MongoDBConfig, probesProvider *Probes, appProvider *App) *MongoDB {
 	return &MongoDB{
 		Config:         config,
 		probesProvider: probesProvider,
+		appProvider:    appProvider,
 	}
 }
 
@@ -72,7 +74,7 @@ func NewMongoDB(config *MongoDBConfig, probesProvider *Probes) *MongoDB {
 func (p *MongoDB) Init() error {
 	client, err := mongo.NewClientWithOptions(
 		p.Config.URI,
-		clientopt.AppName("ddd"),
+		clientopt.AppName(p.appProvider.Name()),
 		clientopt.MaxConnsPerHost(p.Config.MaxConnsPerHost),
 		clientopt.MaxIdleConnsPerHost(p.Config.MaxConnsPerHost),
 	)
