@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/clientopt"
+	"github.com/mongodb/mongo-go-driver/options"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -72,16 +72,15 @@ func NewMongoDB(config *MongoDBConfig, probesProvider *Probes, appProvider *App)
 
 // Init ...
 func (p *MongoDB) Init() error {
-	opts := []clientopt.Option{
-		clientopt.MaxConnsPerHost(p.Config.MaxConnsPerHost),
-		clientopt.MaxIdleConnsPerHost(p.Config.MaxConnsPerHost),
-	}
+	opts := options.Client()
+	opts.SetMaxConnsPerHost(p.Config.MaxConnsPerHost)
+	opts.SetMaxIdleConnsPerHost(p.Config.MaxConnsPerHost)
 
 	if p.appProvider != nil {
-		opts = append(opts, clientopt.AppName(p.appProvider.Name()))
+		opts.SetAppName(p.appProvider.Name())
 	}
 
-	client, err := mongo.NewClientWithOptions(p.Config.URI, opts...)
+	client, err := mongo.NewClientWithOptions(p.Config.URI, opts)
 	if err != nil {
 		logrus.WithError(err).Error("MongoDB Client Creation Failed")
 		return err
