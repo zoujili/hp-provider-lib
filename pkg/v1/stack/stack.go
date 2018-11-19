@@ -1,7 +1,7 @@
 package stack
 
 import (
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	p "fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"os"
 	"os/signal"
 	"reflect"
@@ -12,7 +12,7 @@ import (
 
 // Stack ...
 type Stack struct {
-	providers []provider.Provider
+	providers []p.Provider
 }
 
 // New ...
@@ -21,9 +21,11 @@ func New() *Stack {
 }
 
 // MustInit ...
-func (s *Stack) MustInit(provider provider.Provider) {
+func (s *Stack) MustInit(provider p.Provider) {
+	logger := p.NewLogger(p.ParseEnv())
+
 	name := name(provider)
-	logrus.Info(name + " Initializing...")
+	logger.Info(name + " Initializing...")
 
 	if err := provider.Init(); err != nil {
 		panic(err)
@@ -31,7 +33,7 @@ func (s *Stack) MustInit(provider provider.Provider) {
 
 	s.providers = append(s.providers, provider)
 
-	logrus.Info(name + " Initialized")
+	logger.Info(name + " Initialized")
 }
 
 var runOnce sync.Once
@@ -39,8 +41,8 @@ var runOnce sync.Once
 // MustRun ...
 func (s *Stack) MustRun() {
 	runOnce.Do(func() {
-		for _, p := range s.providers {
-			runProvider, ok := p.(provider.RunProvider)
+		for _, pr := range s.providers {
+			runProvider, ok := pr.(p.RunProvider)
 			if ok {
 				go func() {
 					name := name(runProvider)

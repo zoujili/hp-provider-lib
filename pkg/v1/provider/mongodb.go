@@ -20,21 +20,21 @@ type MongoDBConfig struct {
 
 // NewMongoDBConfigFromEnv ...
 func NewMongoDBConfigFromEnv() *MongoDBConfig {
-	viper.SetDefault("MONGODB_URI", "mongodb://127.0.0.1:27017")
-	viper.BindEnv("MONGODB_URI")
-	uri := viper.GetString("MONGODB_URI")
+	v := viper.New()
+	v.SetEnvPrefix("MONGODB")
+	v.AutomaticEnv()
 
-	viper.SetDefault("MONGODB_DATABASE", "test")
-	viper.BindEnv("MONGODB_DATABASE")
-	database := viper.GetString("MONGODB_DATABASE")
+	v.SetDefault("URI", "mongodb://127.0.0.1:27017")
+	uri := v.GetString("URI")
 
-	viper.SetDefault("MONGODB_TIMEOUT", 20)
-	viper.BindEnv("MONGODB_TIMEOUT")
-	timeout := viper.GetDuration("MONGODB_TIMEOUT") * time.Second
+	v.SetDefault("DATABASE", "test")
+	database := v.GetString("DATABASE")
 
-	viper.SetDefault("MONGODB_MAX_CONNS_PER_HOST", 16)
-	viper.BindEnv("MONGODB_MAX_CONNS_PER_HOST")
-	maxConnsPerHost := uint16(viper.GetInt("MONGODB_MAX_CONNS_PER_HOST"))
+	v.SetDefault("TIMEOUT", 20)
+	timeout := v.GetDuration("TIMEOUT") * time.Second
+
+	v.SetDefault("MAX_CONNS_PER_HOST", 16)
+	maxConnsPerHost := uint16(v.GetInt("MAX_CONNS_PER_HOST"))
 
 	logrus.WithFields(logrus.Fields{
 		"uri":                uri,

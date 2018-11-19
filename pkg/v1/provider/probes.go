@@ -18,21 +18,21 @@ type ProbesConfig struct {
 
 // NewProbesConfigFromEnv ...
 func NewProbesConfigFromEnv() *ProbesConfig {
-	viper.SetDefault("PROBES_ENABLED", true)
-	viper.BindEnv("PROBES_ENABLED")
-	enabled := viper.GetBool("PROBES_ENABLED")
+	v := viper.New()
+	v.SetEnvPrefix("PROBES")
+	v.AutomaticEnv()
 
-	viper.SetDefault("PROBES_PORT", 8000)
-	viper.BindEnv("PROBES_PORT")
-	port := viper.GetInt("PROBES_PORT")
+	v.SetDefault("ENABLED", true)
+	enabled := v.GetBool("ENABLED")
 
-	viper.SetDefault("PROBES_LIVENESS_ENDPOINT", "/healthz")
-	viper.BindEnv("PROBES_LIVENESS_ENDPOINT")
-	livenessEndpoint := viper.GetString("PROBES_LIVENESS_ENDPOINT")
+	v.SetDefault("PORT", 8000)
+	port := v.GetInt("PORT")
 
-	viper.SetDefault("PROBES_READINESS_ENDPOINT", "/ready")
-	viper.BindEnv("PROBES_READINESS_ENDPOINT")
-	readinessEndpoint := viper.GetString("PROBES_READINESS_ENDPOINT")
+	v.SetDefault("LIVENESS_ENDPOINT", "/healthz")
+	livenessEndpoint := v.GetString("LIVENESS_ENDPOINT")
+
+	v.SetDefault("READINESS_ENDPOINT", "/ready")
+	readinessEndpoint := v.GetString("READINESS_ENDPOINT")
 
 	logrus.WithFields(logrus.Fields{
 		"enabled":            enabled,

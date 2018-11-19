@@ -26,9 +26,12 @@ type GRPCServerConfig struct {
 
 // NewGRPCServerConfigFromEnv ...
 func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
-	viper.SetDefault("GRPCSERVER_PORT", 3000)
-	viper.BindEnv("GRPCSERVER_PORT")
-	port := viper.GetInt("GRPCSERVER_PORT")
+	v := viper.New()
+	v.SetEnvPrefix("GRPCSERVER")
+	v.AutomaticEnv()
+
+	v.SetDefault("PORT", 3000)
+	port := v.GetInt("PORT")
 
 	logrus.WithFields(logrus.Fields{
 		"port": port,

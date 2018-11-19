@@ -19,13 +19,15 @@ type NatsConfig struct {
 
 // NewNatsConfigFromEnv ...
 func NewNatsConfigFromEnv() *NatsConfig {
-	viper.SetDefault("NATS_URI", "nats://127.0.0.1:4222")
-	viper.BindEnv("NATS_URI")
-	uri := viper.GetString("NATS_URI")
+	v := viper.New()
+	v.SetEnvPrefix("NATS")
+	v.AutomaticEnv()
 
-	viper.SetDefault("NATS_TIMEOUT", 20)
-	viper.BindEnv("NATS_TIMEOUT")
-	timeout := viper.GetDuration("NATS_TIMEOUT") * time.Second
+	v.SetDefault("URI", "nats://127.0.0.1:4222")
+	uri := v.GetString("URI")
+
+	v.SetDefault("TIMEOUT", 20)
+	timeout := v.GetDuration("TIMEOUT") * time.Second
 
 	logrus.WithFields(logrus.Fields{
 		"uri":     uri,

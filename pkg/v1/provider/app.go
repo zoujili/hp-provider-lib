@@ -16,9 +16,12 @@ type AppConfig struct {
 
 // NewAppConfigFromEnv ...
 func NewAppConfigFromEnv() *AppConfig {
-	viper.SetDefault("APP_NAME", os.Args[0])
-	viper.BindEnv("APP_NAME")
-	name := viper.GetString("APP_NAME")
+	v := viper.New()
+	v.SetEnvPrefix("APP")
+	v.AutomaticEnv()
+
+	v.SetDefault("NAME", os.Args[0])
+	name := v.GetString("NAME")
 
 	logrus.WithFields(logrus.Fields{
 		"name": name,

@@ -18,17 +18,18 @@ type PProfConfig struct {
 
 // NewPProfConfigFromEnv ...
 func NewPProfConfigFromEnv() *PProfConfig {
-	viper.SetDefault("PPROF_ENABLED", true)
-	viper.BindEnv("PPROF_ENABLED")
-	enabled := viper.GetBool("PPROF_ENABLED")
+	v := viper.New()
+	v.SetEnvPrefix("PPROF")
+	v.AutomaticEnv()
 
-	viper.SetDefault("PPROF_PORT", 9999)
-	viper.BindEnv("PPROF_PORT")
-	port := viper.GetInt("PPROF_PORT")
+	v.SetDefault("ENABLED", true)
+	enabled := v.GetBool("ENABLED")
 
-	viper.SetDefault("PPROF_ENDPOINT", "/debug/pprof")
-	viper.BindEnv("PPROF_ENDPOINT")
-	endpoint := viper.GetString("PPROF_ENDPOINT")
+	v.SetDefault("PORT", 9999)
+	port := v.GetInt("PORT")
+
+	v.SetDefault("ENDPOINT", "/debug/pprof")
+	endpoint := v.GetString("ENDPOINT")
 
 	logrus.WithFields(logrus.Fields{
 		"enabled":  enabled,

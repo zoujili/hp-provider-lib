@@ -21,17 +21,18 @@ type JaegerConfig struct {
 
 // NewJaegerConfigFromEnv ...
 func NewJaegerConfigFromEnv() *JaegerConfig {
-	viper.SetDefault("JAEGER_ENABLED", true)
-	viper.BindEnv("JAEGER_ENABLED")
-	enabled := viper.GetBool("JAEGER_ENABLED")
+	v := viper.New()
+	v.SetEnvPrefix("JAEGER")
+	v.AutomaticEnv()
 
-	viper.SetDefault("JAEGER_AGENT_HOST", "127.0.0.1")
-	viper.BindEnv("JAEGER_AGENT_HOST")
-	host := viper.GetString("JAEGER_AGENT_HOST")
+	v.SetDefault("ENABLED", true)
+	enabled := v.GetBool("ENABLED")
 
-	viper.SetDefault("JAEGER_AGENT_PORT", 6831)
-	viper.BindEnv("JAEGER_AGENT_PORT")
-	port := viper.GetInt("JAEGER_AGENT_PORT")
+	v.SetDefault("AGENT_HOST", "127.0.0.1")
+	host := v.GetString("AGENT_HOST")
+
+	v.SetDefault("AGENT_PORT", 6831)
+	port := v.GetInt("AGENT_PORT")
 
 	logrus.WithFields(logrus.Fields{
 		"enabled": enabled,

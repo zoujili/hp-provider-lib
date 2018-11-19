@@ -18,17 +18,18 @@ type PrometheusConfig struct {
 
 // NewPrometheusConfigFromEnv ...
 func NewPrometheusConfigFromEnv() *PrometheusConfig {
-	viper.SetDefault("PROMETHEUS_ENABLED", true)
-	viper.BindEnv("PROMETHEUS_ENABLED")
-	enabled := viper.GetBool("PROMETHEUS_ENABLED")
+	v := viper.New()
+	v.SetEnvPrefix("PROMETHEUS")
+	v.AutomaticEnv()
 
-	viper.SetDefault("PROMETHEUS_PORT", 9090)
-	viper.BindEnv("PROMETHEUS_PORT")
-	port := viper.GetInt("PROMETHEUS_PORT")
+	v.SetDefault("ENABLED", true)
+	enabled := v.GetBool("ENABLED")
 
-	viper.SetDefault("PROMETHEUS_ENDPOINT", "/metrics")
-	viper.BindEnv("PROMETHEUS_ENDPOINT")
-	endpoint := viper.GetString("PROMETHEUS_ENDPOINT")
+	v.SetDefault("PORT", 9090)
+	port := v.GetInt("PORT")
+
+	v.SetDefault("ENDPOINT", "/metrics")
+	endpoint := v.GetString("ENDPOINT")
 
 	logrus.WithFields(logrus.Fields{
 		"enabled":  enabled,
