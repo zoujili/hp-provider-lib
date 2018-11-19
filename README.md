@@ -259,39 +259,48 @@ func main() {
     stack := stack.New()
     defer stack.MustClose()
 
+    // Logging
     logrusConfig := provider.NewLogrusConfigFromEnv()
     logrusProvider := provider.NewLogrus(logrusConfig)
     stack.MustInit(logrusProvider)
 
-    appConfig := provider.NewAppConfigEnv()
+    // Root app
+    appConfig := provider.NewAppConfigFromEnv()
     appProvider := provider.NewApp(appConfig)
     stack.MustInit(appProvider)
 
+    // Prometheus (metrics)
     prometheusConfig := provider.NewPrometheusConfigFromEnv()
     prometheusProvider := provider.NewPrometheus(prometheusConfig)
     stack.MustInit(prometheusProvider)
 
+    // Jaeger (tracing)
     jaegerConfig := provider.NewJaegerConfigFromEnv()
     jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
     stack.MustInit(jaegerProvider)
 
+    // PProf (profiling)
     pprofConfig := provider.NewPProfConfigFromEnv()
     pprofProvider := provider.NewPProf(pprofConfig)
     stack.MustInit(pprofProvider)
 
-    probesConfig := provider.NewProbesConfigEnv()
+    // Probes (liveness/readiness for Kubernetes)
+    probesConfig := provider.NewProbesConfigFromEnv()
     probesProvider := provider.NewProbes(probesConfig)
     stack.MustInit(probesProvider)
 
-    mongodbConfig := provider.NewMongoDBConfigEnv()
+    // MongoDB
+    mongodbConfig := provider.NewMongoDBConfigFromEnv()
     mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
     stack.MustInit(mongodbProvider)
 
-    natsConfig := provider.NewNatsConfigEnv()
+    // Nats (events)
+    natsConfig := provider.NewNatsConfigFromEnv()
     natsProvider := provider.NewNats(natsConfig, probesProvider)
     stack.MustInit(natsProvider)
 
-    grpcServerConfig := provider.NewGRPCServerConfigEnv()
+    // gRPC service
+    grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
     grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
     stack.MustInit(grpcServerProvider)
 
