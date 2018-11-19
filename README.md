@@ -256,57 +256,57 @@ import (
 )
 
 func main() {
-    stack := stack.New()
-    defer stack.MustClose()
+    st := stack.New()
+    defer st.MustClose()
 
     // Logging
     logrusConfig := provider.NewLogrusConfigFromEnv()
     logrusProvider := provider.NewLogrus(logrusConfig)
-    stack.MustInit(logrusProvider)
+    st.MustInit(logrusProvider)
 
     // Root app
     appConfig := provider.NewAppConfigFromEnv()
     appProvider := provider.NewApp(appConfig)
-    stack.MustInit(appProvider)
+    st.MustInit(appProvider)
 
     // Prometheus (metrics)
     prometheusConfig := provider.NewPrometheusConfigFromEnv()
     prometheusProvider := provider.NewPrometheus(prometheusConfig)
-    stack.MustInit(prometheusProvider)
+    st.MustInit(prometheusProvider)
 
     // Jaeger (tracing)
     jaegerConfig := provider.NewJaegerConfigFromEnv()
     jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
-    stack.MustInit(jaegerProvider)
+    st.MustInit(jaegerProvider)
 
     // PProf (profiling)
     pprofConfig := provider.NewPProfConfigFromEnv()
     pprofProvider := provider.NewPProf(pprofConfig)
-    stack.MustInit(pprofProvider)
+    st.MustInit(pprofProvider)
 
     // Probes (liveness/readiness for Kubernetes)
     probesConfig := provider.NewProbesConfigFromEnv()
     probesProvider := provider.NewProbes(probesConfig)
-    stack.MustInit(probesProvider)
+    st.MustInit(probesProvider)
 
     // MongoDB
     mongodbConfig := provider.NewMongoDBConfigFromEnv()
     mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
-    stack.MustInit(mongodbProvider)
+    st.MustInit(mongodbProvider)
 
     // Nats (events)
     natsConfig := provider.NewNatsConfigFromEnv()
     natsProvider := provider.NewNats(natsConfig, probesProvider)
-    stack.MustInit(natsProvider)
+    st.MustInit(natsProvider)
 
     // gRPC service
     grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
     grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
-    stack.MustInit(grpcServerProvider)
+    st.MustInit(grpcServerProvider)
 
     // Do other stuff here
 
-    stack.MustRun()
+    st.MustRun()
 
 }
 ```
