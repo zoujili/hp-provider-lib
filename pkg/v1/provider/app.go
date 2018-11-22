@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"fitstation-hp/lib-fs-core-go/pkg/v1/version"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
 )
 
 // AppConfig ...

@@ -1,6 +1,7 @@
 module github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go
 
 require (
+	github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go v0.0.0-20181114214153-8c1f7ba890e8
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
@@ -34,3 +35,5 @@ require (
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 	google.golang.org/grpc v1.16.0
 )
+
+replace github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go => ./../lib-fs-core-go
