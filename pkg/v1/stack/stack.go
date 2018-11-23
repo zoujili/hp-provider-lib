@@ -4,7 +4,6 @@ import (
 	p "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"os"
 	"os/signal"
-	"reflect"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,7 @@ func New() *Stack {
 func (s *Stack) MustInit(provider p.Provider) {
 	logger := p.NewLogger(p.ParseEnv())
 
-	name := name(provider)
+	name := p.Name(provider)
 	logger.Infof("%s Initializing...", name)
 
 	if err := provider.Init(); err != nil {
@@ -45,12 +44,15 @@ func (s *Stack) MustRun() {
 			runProvider, ok := pr.(p.RunProvider)
 			if ok {
 				go func() {
-					name := name(runProvider)
+					name := p.Name(runProvider)
 					logrus.Infof("%s Running...", name)
 
 					err := runProvider.Run()
 					if err != nil {
 						logrus.WithError(err).Panicf("%s Failed to run", name)
+					}
+					if runProvider.IsRunning() {
+						logrus.Infof("%s Is Running", name)
 					}
 				}()
 			}
@@ -65,7 +67,7 @@ var closeOnce sync.Once
 func (s *Stack) MustClose() {
 	closeOnce.Do(func() {
 		for i := len(s.providers) - 1; i >= 0; i-- {
-			name := name(s.providers[i])
+			name := p.Name(s.providers[i])
 			logrus.Info(name + " Closing...")
 
 			if err := s.providers[i].Close(); err != nil {
@@ -87,8 +89,4 @@ func (s *Stack) handleInterrupt() {
 		close(cleanupDone)
 	}()
 	<-cleanupDone
-}
-
-func name(provider interface{}) string {
-	return reflect.TypeOf(provider).Elem().String()
 }

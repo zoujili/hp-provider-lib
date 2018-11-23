@@ -48,12 +48,14 @@ type GRPCServer struct {
 
 	Listener net.Listener
 	Server   *grpc.Server
+	running  bool
 }
 
 // NewGRPCServer ...
 func NewGRPCServer(config *GRPCServerConfig) *GRPCServer {
 	return &GRPCServer{
-		Config: config,
+		Config:  config,
+		running: false,
 	}
 }
 
@@ -109,6 +111,7 @@ func (p *GRPCServer) Run() error {
 		return err
 	}
 	p.Listener = listener
+	p.running = true
 
 	logger.Info("GRPCServer Provider Launched")
 	if err := p.Server.Serve(listener); err != nil {
@@ -117,6 +120,10 @@ func (p *GRPCServer) Run() error {
 	}
 
 	return nil
+}
+
+func (p *GRPCServer) IsRunning() bool {
+	return p.running
 }
 
 // Close ...

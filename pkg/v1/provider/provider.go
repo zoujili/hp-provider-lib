@@ -8,5 +8,8 @@ type Provider interface {
 
 // RunProvider ...
 type RunProvider interface {
+	Provider
+
 	Run() error
+	IsRunning() bool
 }

@@ -54,7 +54,8 @@ type ProbeFunc func() error
 
 // Probes ...
 type Probes struct {
-	Config *ProbesConfig
+	Config  *ProbesConfig
+	running bool
 
 	livenessProbes  []ProbeFunc
 	readinessProbes []ProbeFunc
@@ -63,7 +64,8 @@ type Probes struct {
 // NewProbes ...
 func NewProbes(config *ProbesConfig) *Probes {
 	return &Probes{
-		Config: config,
+		Config:  config,
+		running: false,
 	}
 }
 
@@ -90,6 +92,7 @@ func (p *Probes) Run() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc(p.Config.LivenessEndpoint, p.livenessHandler)
 	mux.HandleFunc(p.Config.ReadinessEndpoint, p.readinessHandler)
+	p.running = true
 
 	logger.Info("Probes Provider Launched")
 	if err := http.ListenAndServe(addr, mux); err != nil {
@@ -98,6 +101,10 @@ func (p *Probes) Run() error {
 	}
 
 	return nil
+}
+
+func (p *Probes) IsRunning() bool {
+	return p.running
 }
 
 // Close ...

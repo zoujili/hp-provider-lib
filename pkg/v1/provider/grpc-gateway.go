@@ -49,12 +49,14 @@ type GRPCGateway struct {
 	GRPCServer *GRPCServer
 	ClientConn *grpc.ClientConn
 	ServeMux   *runtime.ServeMux
+	running    bool
 }
 
 func NewGRPCGateway(config *GRPCGatewayConfig, server *GRPCServer) *GRPCGateway {
 	return &GRPCGateway{
 		Config:     config,
 		GRPCServer: server,
+		running:    true,
 	}
 }
 
@@ -70,8 +72,9 @@ func (p *GRPCGateway) Run() error {
 	if p.GRPCServer == nil {
 		return fmt.Errorf("cannot initialize GRPCGateway without GRPCServer to connect to")
 	}
-	if p.GRPCServer.Listener == nil {
-		return fmt.Errorf("cannot run GRPCGateway without starting GRPCServer first")
+
+	if err := WaitForRunningProvider(p.GRPCServer, 2); err != nil {
+		return err
 	}
 
 	serverAddr := p.GRPCServer.Listener.Addr()
@@ -91,6 +94,7 @@ func (p *GRPCGateway) Run() error {
 	conn, err := grpc.DialContext(
 		context.Background(),
 		serverAddr.String(),
+		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(
 			grpc_middleware.ChainUnaryClient(
 				grpc_opentracing.UnaryClientInterceptor(),
@@ -113,7 +117,28 @@ func (p *GRPCGateway) Run() error {
 
 	p.ServeMux = runtime.NewServeMux()
 	p.ClientConn = conn
+	p.running = true
 
+	return nil
+}
+
+func (p *GRPCGateway) IsRunning() bool {
+	return p.running
+}
+
+func (p *GRPCGateway) RegisterServices(functions ...func(context.Context, *runtime.ServeMux, *grpc.ClientConn) error) error {
+	if !p.Config.Enabled {
+		return nil
+	}
+	if err := WaitForRunningProvider(p, 2); err != nil {
+		return err
+	}
+
+	for _, function := range functions {
+		if err := function(context.Background(), p.ServeMux, p.ClientConn); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

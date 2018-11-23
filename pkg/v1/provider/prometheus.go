@@ -46,13 +46,15 @@ func NewPrometheusConfigFromEnv() *PrometheusConfig {
 
 // Prometheus ...
 type Prometheus struct {
-	Config *PrometheusConfig
+	Config  *PrometheusConfig
+	running bool
 }
 
 // NewPrometheus ...
 func NewPrometheus(config *PrometheusConfig) *Prometheus {
 	return &Prometheus{
-		Config: config,
+		Config:  config,
+		running: false,
 	}
 }
 
@@ -77,6 +79,7 @@ func (p *Prometheus) Run() error {
 
 	mux := http.NewServeMux()
 	mux.Handle(p.Config.Endpoint, promhttp.Handler())
+	p.running = true
 
 	logger.Info("Prometheus Provider Launched")
 	if err := http.ListenAndServe(addr, mux); err != nil {
@@ -85,6 +88,10 @@ func (p *Prometheus) Run() error {
 	}
 
 	return nil
+}
+
+func (p *Prometheus) IsRunning() bool {
+	return p.running
 }
 
 // Close ...

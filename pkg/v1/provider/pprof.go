@@ -46,13 +46,15 @@ func NewPProfConfigFromEnv() *PProfConfig {
 
 // PProf ...
 type PProf struct {
-	Config *PProfConfig
+	Config  *PProfConfig
+	running bool
 }
 
 // NewPProf ...
 func NewPProf(config *PProfConfig) *PProf {
 	return &PProf{
-		Config: config,
+		Config:  config,
+		running: false,
 	}
 }
 
@@ -81,6 +83,7 @@ func (p *PProf) Run() error {
 	mux.HandleFunc(p.Config.Endpoint+"/profile", pprof.Profile)
 	mux.HandleFunc(p.Config.Endpoint+"/symbol", pprof.Symbol)
 	mux.HandleFunc(p.Config.Endpoint+"/trace", pprof.Trace)
+	p.running = true
 
 	logger.Info("PProf Provider Launched")
 	if err := http.ListenAndServe(addr, mux); err != nil {
@@ -88,6 +91,10 @@ func (p *PProf) Run() error {
 	}
 
 	return nil
+}
+
+func (p *PProf) IsRunning() bool {
+	return p.running
 }
 
 // Close ...
