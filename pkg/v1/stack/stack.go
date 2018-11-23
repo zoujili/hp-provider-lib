@@ -1,7 +1,7 @@
 package stack
 
 import (
-	p "fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	p "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"os"
 	"os/signal"
 	"reflect"

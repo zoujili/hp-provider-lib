@@ -251,8 +251,8 @@ NewGRPCServerConfigEnv() config:
 package main
 
 import (
-    "fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-    "fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
 
 func main() {

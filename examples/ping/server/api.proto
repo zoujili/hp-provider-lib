@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api;
 
-option go_package="fitstation-hp/lib-fs-provider-go/examples/ping/server";
+option go_package="github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server";
 
 service PingService {
     rpc Ping (PingRequest) returns (PingResponse) {}

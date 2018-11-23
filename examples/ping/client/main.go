@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"fitstation-hp/lib-fs-provider-go/examples/ping/server"
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 	"fmt"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 	"os"
 	"time"
 
@@ -14,21 +14,25 @@ import (
 )
 
 func main() {
-	stack := stack.New()
-	defer stack.MustClose()
+	st := stack.New()
+	defer st.MustClose()
 
 	logrusProvider := provider.NewLogrus(&provider.LogrusConfig{
 		Level:     logrus.InfoLevel,
 		Formatter: &logrus.TextFormatter{},
 		Output:    os.Stderr,
 	})
-	stack.MustInit(logrusProvider)
+	st.MustInit(logrusProvider)
 
 	conn, err := grpc.Dial("127.0.0.1:3000", grpc.WithInsecure())
 	if err != nil {
 		logrus.WithError(err).Fatal("did not connect")
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			logrus.WithError(err).Error("error while closing connection")
+		}
+	}()
 
 	client := server.NewPingServiceClient(conn)
 
