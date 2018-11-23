@@ -39,7 +39,7 @@ func NewProbesConfigFromEnv() *ProbesConfig {
 		"port":               port,
 		"liveness_endpoint":  livenessEndpoint,
 		"readiness_endpoint": readinessEndpoint,
-	}).Info("Probes Config Initialized")
+	}).Debug("Probes Config Initialized")
 
 	return &ProbesConfig{
 		Enabled:           enabled,
@@ -109,7 +109,9 @@ func (p *Probes) livenessHandler(w http.ResponseWriter, r *http.Request) {
 	for _, probe := range p.livenessProbes {
 		if err := probe(); err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(err.Error()))
+			if _, err := w.Write([]byte(err.Error())); err != nil {
+				logrus.WithError(err).Warnf("Error while writing liveness data")
+			}
 			return
 		}
 	}
@@ -120,7 +122,9 @@ func (p *Probes) readinessHandler(w http.ResponseWriter, r *http.Request) {
 	for _, probe := range p.readinessProbes {
 		if err := probe(); err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(err.Error()))
+			if _, err := w.Write([]byte(err.Error())); err != nil {
+				logrus.WithError(err).Warnf("Error while writing readiness data")
+			}
 			return
 		}
 	}

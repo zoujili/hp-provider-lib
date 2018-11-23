@@ -26,7 +26,7 @@ func NewLogrusConfigFromEnv() *LogrusConfig {
 		"level":     level,
 		"formatter": reflect.TypeOf(formatter).Elem().String(),
 		"output":    reflect.TypeOf(output).Elem().String(),
-	}).Info("Logrus Config Initialized")
+	}).Debug("Logrus Config Initialized")
 
 	return &LogrusConfig{
 		Level:     level,
@@ -97,6 +97,8 @@ func ParseEnv() (logrus.Level, logrus.Formatter, io.Writer) {
 		formatter = &logrus.JSONFormatter{}
 	case "text":
 		formatter = &logrus.TextFormatter{}
+	case "text_clr":
+		formatter = &logrus.TextFormatter{ForceColors: true}
 	}
 
 	v.SetDefault("OUTPUT", "stderr")

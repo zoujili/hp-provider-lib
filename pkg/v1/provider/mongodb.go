@@ -41,7 +41,7 @@ func NewMongoDBConfigFromEnv() *MongoDBConfig {
 		"database":           database,
 		"timeout":            timeout,
 		"max_conns_per_host": maxConnsPerHost,
-	}).Info("MongoDB Config Initialized")
+	}).Debug("MongoDB Config Initialized")
 
 	return &MongoDBConfig{
 		URI:             uri,

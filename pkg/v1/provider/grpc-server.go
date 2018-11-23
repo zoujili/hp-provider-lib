@@ -35,7 +35,7 @@ func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
 
 	logrus.WithFields(logrus.Fields{
 		"port": port,
-	}).Info("GRPCServer Config Initialized")
+	}).Debug("GRPCServer Config Initialized")
 
 	return &GRPCServerConfig{
 		Port: port,
@@ -124,7 +124,7 @@ func (p *GRPCServer) Close() error {
 	return nil
 }
 
-type tokenInfo string
+//type tokenInfo string
 
 func (p *GRPCServer) authFunc(ctx context.Context) (context.Context, error) {
 	// TODO

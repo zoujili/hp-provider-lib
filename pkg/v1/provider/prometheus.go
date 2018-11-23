@@ -35,7 +35,7 @@ func NewPrometheusConfigFromEnv() *PrometheusConfig {
 		"enabled":  enabled,
 		"port":     port,
 		"endpoint": endpoint,
-	}).Info("Prometheus Config Initialized")
+	}).Debug("Prometheus Config Initialized")
 
 	return &PrometheusConfig{
 		Enabled:  enabled,

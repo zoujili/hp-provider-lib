@@ -25,7 +25,7 @@ func NewAppConfigFromEnv() *AppConfig {
 
 	logrus.WithFields(logrus.Fields{
 		"name": name,
-	}).Info("App Config Initialized")
+	}).Debug("App Config Initialized")
 
 	return &AppConfig{
 		Name: name,

@@ -35,7 +35,7 @@ func NewPProfConfigFromEnv() *PProfConfig {
 		"enabled":  enabled,
 		"port":     port,
 		"endpoint": endpoint,
-	}).Info("PProf Config Initialized")
+	}).Debug("PProf Config Initialized")
 
 	return &PProfConfig{
 		Enabled:  enabled,

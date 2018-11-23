@@ -13,6 +13,7 @@ import (
 
 // NatsConfig ...
 type NatsConfig struct {
+	Enabled bool
 	URI     string
 	Timeout time.Duration
 }
@@ -23,6 +24,9 @@ func NewNatsConfigFromEnv() *NatsConfig {
 	v.SetEnvPrefix("NATS")
 	v.AutomaticEnv()
 
+	v.SetDefault("ENABLED", true)
+	enabled := v.GetBool("ENABLED")
+
 	v.SetDefault("URI", "nats://127.0.0.1:4222")
 	uri := v.GetString("URI")
 
@@ -32,9 +36,10 @@ func NewNatsConfigFromEnv() *NatsConfig {
 	logrus.WithFields(logrus.Fields{
 		"uri":     uri,
 		"timeout": timeout,
-	}).Info("Nats Config Initialized")
+	}).Debug("Nats Config Initialized")
 
 	return &NatsConfig{
+		Enabled: enabled,
 		URI:     uri,
 		Timeout: timeout,
 	}
@@ -58,6 +63,11 @@ func NewNats(config *NatsConfig, probesProvider *Probes) *Nats {
 
 // Init ...
 func (p *Nats) Init() error {
+	if !p.Config.Enabled {
+		logrus.Info("Nats Provider Not Enabled")
+		return nil
+	}
+
 	ctx := context.Background()
 
 	cd := &customDialer{
@@ -78,7 +88,7 @@ func (p *Nats) Init() error {
 	}
 
 	if !client.IsConnected() {
-		err = errors.New("Nats client not connected")
+		err = errors.New("nats client not connected")
 		logrus.WithError(err).Error("Nats Provider Initialization Failed")
 		return err
 	}
@@ -134,7 +144,7 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 
 func (p *Nats) livenessProbe() error {
 	if !p.Client.IsConnected() {
-		err := errors.New("Nats client not connected")
+		err := errors.New("nats client not connected")
 		logrus.WithError(err).Error("Nats LivenessProbe Failed")
 		return err
 	}

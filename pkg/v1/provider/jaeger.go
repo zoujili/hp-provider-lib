@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/uber/jaeger-client-go/config"
@@ -38,7 +38,7 @@ func NewJaegerConfigFromEnv() *JaegerConfig {
 		"enabled": enabled,
 		"port":    port,
 		"host":    host,
-	}).Info("Jaeger Config Initialized")
+	}).Debug("Jaeger Config Initialized")
 
 	return &JaegerConfig{
 		Enabled: enabled,
