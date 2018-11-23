@@ -42,7 +42,7 @@ func main() {
 	grpcGatewayProvider := provider.NewGRPCGateway(grpcGatewayConfig, grpcServerProvider)
 	st.MustInit(grpcGatewayProvider)
 
-	pingService := server.NewPingService(grpcServerProvider)
+	pingService := server.NewPingService(grpcServerProvider, grpcGatewayProvider)
 	st.MustInit(pingService)
 
 	st.MustRun()

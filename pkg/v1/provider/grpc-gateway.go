@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"net/http"
 	"time"
 )
 
@@ -44,19 +45,19 @@ func NewGRPCGatewayConfigFromEnv() *GRPCGatewayConfig {
 
 // GRPCGateway ...
 type GRPCGateway struct {
-	Config *GRPCGatewayConfig
+	Config  *GRPCGatewayConfig
+	running bool
 
 	GRPCServer *GRPCServer
 	ClientConn *grpc.ClientConn
 	ServeMux   *runtime.ServeMux
-	running    bool
 }
 
 func NewGRPCGateway(config *GRPCGatewayConfig, server *GRPCServer) *GRPCGateway {
 	return &GRPCGateway{
 		Config:     config,
+		running:    false,
 		GRPCServer: server,
-		running:    true,
 	}
 }
 
@@ -118,6 +119,12 @@ func (p *GRPCGateway) Run() error {
 	p.ServeMux = runtime.NewServeMux()
 	p.ClientConn = conn
 	p.running = true
+
+	logger.Info("GRPCGateway Provider Launched")
+	if err := http.ListenAndServe(addr, p.ServeMux); err != nil {
+		logger.WithError(err).Error("GRPCGateway Provider Launch Failed")
+		return err
+	}
 
 	return nil
 }

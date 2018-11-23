@@ -44,11 +44,11 @@ func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
 
 // GRPCServer ...
 type GRPCServer struct {
-	Config *GRPCServerConfig
+	Config  *GRPCServerConfig
+	running bool
 
 	Listener net.Listener
 	Server   *grpc.Server
-	running  bool
 }
 
 // NewGRPCServer ...

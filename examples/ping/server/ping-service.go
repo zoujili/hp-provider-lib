@@ -5,18 +5,22 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
-	context "golang.org/x/net/context"
+	"golang.org/x/net/context"
 )
 
 // PingService ...
 type PingService struct {
-	grpcServerProvider *provider.GRPCServer
+	running             bool
+	grpcServerProvider  *provider.GRPCServer
+	grpcGatewayProvider *provider.GRPCGateway
 }
 
 // NewPingService ...
-func NewPingService(grpcServerProvider *provider.GRPCServer) *PingService {
+func NewPingService(grpcServerProvider *provider.GRPCServer, grpcGatewayProvider *provider.GRPCGateway) *PingService {
 	return &PingService{
-		grpcServerProvider: grpcServerProvider,
+		running:             false,
+		grpcServerProvider:  grpcServerProvider,
+		grpcGatewayProvider: grpcGatewayProvider,
 	}
 }
 
@@ -24,6 +28,18 @@ func NewPingService(grpcServerProvider *provider.GRPCServer) *PingService {
 func (s *PingService) Init() error {
 	RegisterPingServiceServer(s.grpcServerProvider.Server, s)
 	return nil
+}
+
+func (s *PingService) Run() error {
+	if err := s.grpcGatewayProvider.RegisterServices(RegisterPingServiceHandler); err != nil {
+		ctxlogrus.Extract(context.Background()).WithError(err).Errorf("Could not register gateway service handlers")
+		return err
+	}
+	return nil
+}
+
+func (s *PingService) IsRunning() bool {
+	return s.running
 }
 
 // Close ...
