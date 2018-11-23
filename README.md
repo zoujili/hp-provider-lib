@@ -299,10 +299,15 @@ func main() {
     natsProvider := provider.NewNats(natsConfig, probesProvider)
     st.MustInit(natsProvider)
 
-    // gRPC service
+    // gRPC server
     grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
     grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
     st.MustInit(grpcServerProvider)
+
+    // gRPC gateway
+	grpcGatewayConfig := provider.NewGRPCGatewayConfigFromEnv()
+	grpcGatewayProvider := provider.NewGRPCGateway(grpcGatewayConfig, grpcServerProvider)
+	st.MustInit(grpcGatewayProvider)
 
     // Do other stuff here
 

@@ -46,7 +46,8 @@ func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
 type GRPCServer struct {
 	Config *GRPCServerConfig
 
-	Server *grpc.Server
+	Listener net.Listener
+	Server   *grpc.Server
 }
 
 // NewGRPCServer ...
@@ -107,6 +108,7 @@ func (p *GRPCServer) Run() error {
 		logger.WithError(err).Error("GRPCServer Provider Launch Failed")
 		return err
 	}
+	p.Listener = listener
 
 	logger.Info("GRPCServer Provider Launched")
 	if err := p.Server.Serve(listener); err != nil {
