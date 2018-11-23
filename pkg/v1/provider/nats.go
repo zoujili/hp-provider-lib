@@ -104,6 +104,10 @@ func (p *Nats) Init() error {
 
 // Close ...
 func (p *Nats) Close() error {
+	if !p.Config.Enabled {
+		return nil
+	}
+
 	p.Client.Close()
 
 	return nil
