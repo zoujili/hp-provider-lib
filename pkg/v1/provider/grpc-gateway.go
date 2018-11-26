@@ -62,6 +62,9 @@ func NewGRPCGateway(config *GRPCGatewayConfig, server *GRPCServer) *GRPCGateway 
 }
 
 func (p *GRPCGateway) Init() error {
+	if p.GRPCServer == nil {
+		return fmt.Errorf("cannot use GRPCGateway without GRPCServer")
+	}
 	return nil
 }
 
@@ -70,19 +73,16 @@ func (p *GRPCGateway) Run() error {
 		logrus.Info("GRPCGateway Provider Not Enabled")
 		return nil
 	}
-	if p.GRPCServer == nil {
-		return fmt.Errorf("cannot initialize GRPCGateway without GRPCServer to connect to")
-	}
 
 	if err := WaitForRunningProvider(p.GRPCServer, 2); err != nil {
 		return err
 	}
 
-	serverAddr := p.GRPCServer.Listener.Addr()
+	serverAddr := p.GRPCServer.Listener.Addr().String()
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
 	logger := logrus.WithFields(logrus.Fields{
-		"serverAddr": serverAddr.String(),
+		"serverAddr": serverAddr,
 		"addr":       addr,
 	})
 
@@ -94,7 +94,7 @@ func (p *GRPCGateway) Run() error {
 
 	conn, err := grpc.DialContext(
 		context.Background(),
-		serverAddr.String(),
+		serverAddr,
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(
 			grpc_middleware.ChainUnaryClient(
