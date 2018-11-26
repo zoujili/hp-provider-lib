@@ -74,7 +74,7 @@ func ParseEnv() (logrus.Level, logrus.Formatter, io.Writer) {
 	v.AutomaticEnv()
 
 	v.SetDefault("LEVEL", "info")
-	var level logrus.Level
+	level := logrus.InfoLevel
 	switch v.GetString("LEVEL") {
 	case "panic":
 		level = logrus.PanicLevel

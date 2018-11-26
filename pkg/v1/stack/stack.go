@@ -24,7 +24,7 @@ func (s *Stack) MustInit(provider p.Provider) {
 	logger := p.NewLogger(p.ParseEnv())
 
 	name := p.Name(provider)
-	logger.Infof("%s Initializing...", name)
+	logger.Debugf("%s Initializing...", name)
 
 	if err := provider.Init(); err != nil {
 		panic(err)
@@ -45,14 +45,11 @@ func (s *Stack) MustRun() {
 			if ok {
 				go func() {
 					name := p.Name(runProvider)
-					logrus.Infof("%s Running...", name)
+					logrus.Debugf("%s Launching...", name)
 
 					err := runProvider.Run()
 					if err != nil {
 						logrus.WithError(err).Panicf("%s Failed to run", name)
-					}
-					if runProvider.IsRunning() {
-						logrus.Infof("%s Is Running", name)
 					}
 				}()
 			}
