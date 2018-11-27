@@ -114,5 +114,5 @@ func (l *logrusLogger) Error(msg string) {
 }
 
 func (l *logrusLogger) Infof(msg string, args ...interface{}) {
-	logrus.Infof(strings.Trim(msg, "\n"), args...)
+	logrus.Debugf(strings.Trim(msg, "\n"), args...)
 }

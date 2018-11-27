@@ -17,8 +17,9 @@ import (
 
 // GRPCGatewayConfig ...
 type GRPCGatewayConfig struct {
-	Enabled bool
-	Port    int
+	Enabled    bool
+	Port       int
+	LogPayload bool
 }
 
 func NewGRPCGatewayConfigFromEnv() *GRPCGatewayConfig {
@@ -32,14 +33,19 @@ func NewGRPCGatewayConfigFromEnv() *GRPCGatewayConfig {
 	v.SetDefault("PORT", 8080)
 	port := v.GetInt("PORT")
 
+	v.SetDefault("LOG_PAYLOAD", false)
+	logPayload := v.GetBool("LOG_PAYLOAD")
+
 	logrus.WithFields(logrus.Fields{
-		"enabled": enabled,
-		"port":    port,
+		"enabled":    enabled,
+		"port":       port,
+		"logPayload": logPayload,
 	}).Debug("GRPCGateway Config Initialized")
 
 	return &GRPCGatewayConfig{
-		Enabled: enabled,
-		Port:    port,
+		Enabled:    enabled,
+		Port:       port,
+		LogPayload: logPayload,
 	}
 }
 
@@ -51,6 +57,9 @@ type GRPCGateway struct {
 	GRPCServer *GRPCServer
 	ClientConn *grpc.ClientConn
 	ServeMux   *runtime.ServeMux
+
+	unaryInterceptors  []grpc.UnaryClientInterceptor
+	streamInterceptors []grpc.StreamClientInterceptor
 }
 
 func NewGRPCGateway(config *GRPCGatewayConfig, server *GRPCServer) *GRPCGateway {
@@ -64,6 +73,15 @@ func NewGRPCGateway(config *GRPCGatewayConfig, server *GRPCServer) *GRPCGateway 
 func (p *GRPCGateway) Init() error {
 	if p.GRPCServer == nil {
 		return fmt.Errorf("cannot use GRPCGateway without GRPCServer")
+	}
+
+	p.unaryInterceptors = []grpc.UnaryClientInterceptor{
+		grpc_opentracing.UnaryClientInterceptor(),
+		grpc_prometheus.UnaryClientInterceptor,
+	}
+	p.streamInterceptors = []grpc.StreamClientInterceptor{
+		grpc_opentracing.StreamClientInterceptor(),
+		grpc_prometheus.StreamClientInterceptor,
 	}
 	return nil
 }
@@ -92,24 +110,23 @@ func (p *GRPCGateway) Run() error {
 		}),
 	}
 
+	p.unaryInterceptors = append(p.unaryInterceptors, grpc_logrus.UnaryClientInterceptor(logger, opts...))
+	p.streamInterceptors = append(p.streamInterceptors, grpc_logrus.StreamClientInterceptor(logger, opts...))
+	if p.Config.LogPayload {
+		decider := func(ctx context.Context, fullMethodName string) bool {
+			// TODO: Move the decider somewhere else (maybe to service and use a config?)
+			return true
+		}
+		p.unaryInterceptors = append(p.unaryInterceptors, grpc_logrus.PayloadUnaryClientInterceptor(logger, decider))
+		p.streamInterceptors = append(p.streamInterceptors, grpc_logrus.PayloadStreamClientInterceptor(logger, decider))
+	}
+
 	conn, err := grpc.DialContext(
 		context.Background(),
 		serverAddr,
 		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(
-			grpc_middleware.ChainUnaryClient(
-				grpc_opentracing.UnaryClientInterceptor(),
-				grpc_prometheus.UnaryClientInterceptor,
-				grpc_logrus.UnaryClientInterceptor(logger, opts...),
-			),
-		),
-		grpc.WithStreamInterceptor(
-			grpc_middleware.ChainStreamClient(
-				grpc_opentracing.StreamClientInterceptor(),
-				grpc_prometheus.StreamClientInterceptor,
-				grpc_logrus.StreamClientInterceptor(logger, opts...),
-			),
-		),
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(p.unaryInterceptors...)),
+		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(p.streamInterceptors...)),
 	)
 	if err != nil {
 		logger.WithError(err).Errorf("GRPCGateway Provider Launch Failed")

@@ -21,7 +21,8 @@ import (
 
 // GRPCServerConfig ...
 type GRPCServerConfig struct {
-	Port int
+	Port       int
+	LogPayload bool
 }
 
 // NewGRPCServerConfigFromEnv ...
@@ -33,12 +34,17 @@ func NewGRPCServerConfigFromEnv() *GRPCServerConfig {
 	v.SetDefault("PORT", 3000)
 	port := v.GetInt("PORT")
 
+	v.SetDefault("LOG_PAYLOAD", false)
+	logPayload := v.GetBool("LOG_PAYLOAD")
+
 	logrus.WithFields(logrus.Fields{
-		"port": port,
+		"port":       port,
+		"logPayload": logPayload,
 	}).Debug("GRPCServer Config Initialized")
 
 	return &GRPCServerConfig{
-		Port: port,
+		Port:       port,
+		LogPayload: logPayload,
 	}
 }
 
@@ -61,7 +67,7 @@ func NewGRPCServer(config *GRPCServerConfig) *GRPCServer {
 
 // Init ...
 func (p *GRPCServer) Init() error {
-	logrusEntry := logrus.NewEntry(logrus.StandardLogger())
+	logger := logrus.NewEntry(logrus.StandardLogger())
 
 	opts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
@@ -69,27 +75,35 @@ func (p *GRPCServer) Init() error {
 		}),
 	}
 
+	unaryInterceptors := []grpc.UnaryServerInterceptor{
+		grpc_ctxtags.UnaryServerInterceptor(),
+		grpc_opentracing.UnaryServerInterceptor(),
+		grpc_prometheus.UnaryServerInterceptor,
+		grpc_logrus.UnaryServerInterceptor(logger, opts...),
+		grpc_auth.UnaryServerInterceptor(p.authFunc),
+		grpc_recovery.UnaryServerInterceptor(),
+	}
+	streamInterceptors := []grpc.StreamServerInterceptor{
+		grpc_ctxtags.StreamServerInterceptor(),
+		grpc_opentracing.StreamServerInterceptor(),
+		grpc_prometheus.StreamServerInterceptor,
+		grpc_logrus.StreamServerInterceptor(logger, opts...),
+		grpc_auth.StreamServerInterceptor(p.authFunc),
+		grpc_recovery.StreamServerInterceptor(),
+	}
+
+	if p.Config.LogPayload {
+		decider := func(ctx context.Context, fullMethodName string, servingObject interface{}) bool {
+			// TODO: Move the decider somewhere else (maybe to service and use a config?)
+			return true
+		}
+		unaryInterceptors = append(unaryInterceptors, grpc_logrus.PayloadUnaryServerInterceptor(logger, decider))
+		streamInterceptors = append(streamInterceptors, grpc_logrus.PayloadStreamServerInterceptor(logger, decider))
+	}
+
 	p.Server = grpc.NewServer(
-		grpc.UnaryInterceptor(
-			grpc_middleware.ChainUnaryServer(
-				grpc_ctxtags.UnaryServerInterceptor(),
-				grpc_opentracing.UnaryServerInterceptor(),
-				grpc_prometheus.UnaryServerInterceptor,
-				grpc_logrus.UnaryServerInterceptor(logrusEntry, opts...),
-				grpc_auth.UnaryServerInterceptor(p.authFunc),
-				grpc_recovery.UnaryServerInterceptor(),
-			),
-		),
-		grpc.StreamInterceptor(
-			grpc_middleware.ChainStreamServer(
-				grpc_ctxtags.StreamServerInterceptor(),
-				grpc_opentracing.StreamServerInterceptor(),
-				grpc_prometheus.StreamServerInterceptor,
-				grpc_logrus.StreamServerInterceptor(logrusEntry, opts...),
-				grpc_auth.StreamServerInterceptor(p.authFunc),
-				grpc_recovery.StreamServerInterceptor(),
-			),
-		),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(unaryInterceptors...)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(streamInterceptors...)),
 	)
 
 	return nil
