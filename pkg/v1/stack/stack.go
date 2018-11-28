@@ -27,6 +27,7 @@ func (s *Stack) MustInit(provider p.Provider) {
 	logger.Debugf("%s Initializing...", name)
 
 	if err := provider.Init(); err != nil {
+		logger.WithError(err).Errorf("Error during %s initialization", name)
 		panic(err)
 	}
 
