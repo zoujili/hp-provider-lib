@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
 	"github.com/friendsofgo/graphiql"
 	"github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
@@ -38,15 +39,17 @@ func NewGraphQLConfigFromEnv() *GraphQLConfig {
 }
 
 type GraphQL struct {
-	Config  *GraphQLConfig
-	schema  *graphql.Schema
-	running bool
+	Config          *GraphQLConfig
+	schema          *graphql.Schema
+	middlewareChain []middleware.Middleware
+	running         bool
 }
 
-func NewGraphQL(config *GraphQLConfig) *GraphQL {
+func NewGraphQL(config *GraphQLConfig, middlewareChain ...middleware.Middleware) *GraphQL {
 	return &GraphQL{
-		Config:  config,
-		running: false,
+		Config:          config,
+		middlewareChain: middlewareChain,
+		running:         false,
 	}
 }
 
@@ -65,7 +68,7 @@ func (p *GraphQL) Run() error {
 	})
 
 	mux := http.NewServeMux()
-	mux.Handle("/", &relay.Handler{Schema: p.schema})
+	mux.Handle("/", p.getHandler())
 	if p.Config.GraphiQLEnabled {
 		graphiqlHandler, err := graphiql.NewGraphiqlHandler("/")
 		if err != nil {
@@ -98,4 +101,13 @@ func (p *GraphQL) SetSchema(data string, resolver interface{}) error {
 	}
 	p.schema = schema
 	return nil
+}
+
+func (p *GraphQL) getHandler() http.Handler {
+	var handler http.Handler
+	handler = &relay.Handler{Schema: p.schema}
+	for _, mw := range p.middlewareChain {
+		handler = mw.Handler(handler)
+	}
+	return handler
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/graphql/resolver"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
@@ -38,8 +39,11 @@ func main() {
 	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	st.MustInit(natsProvider)
 
+	jwtConfig := middleware.NewJTWConfigFromEnv()
+	jwtMiddleware := middleware.NewJWT(jwtConfig)
+
 	graphqlConfig := provider.NewGraphQLConfigFromEnv()
-	graphqlProvider := provider.NewGraphQL(graphqlConfig)
+	graphqlProvider := provider.NewGraphQL(graphqlConfig, jwtMiddleware)
 	st.MustInit(graphqlProvider)
 
 	// Do other stuff here

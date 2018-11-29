@@ -1,7 +1,10 @@
 package resolver
 
 import (
+	"context"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.com/sirupsen/logrus"
 )
 
 type RootResolver struct {
@@ -31,6 +34,13 @@ func (r *RootResolver) Close() error {
 	return nil
 }
 
-func (r *RootResolver) Ping() string {
+func (r *RootResolver) Ping(ctx context.Context) string {
+	logrus.WithFields(logrus.Fields{
+		"claim_audience":   middleware.GetJWTClaim(ctx, "aud"),
+		"claim_expires_at": middleware.GetJWTClaim(ctx, "exp"),
+		"claim_issued_at":  middleware.GetJWTClaim(ctx, "iat"),
+		"claim_issuer":     middleware.GetJWTClaim(ctx, "iss"),
+		"jwt_valid":        middleware.GetJWTToken(ctx).Valid,
+	}).Info("Received message")
 	return "pong"
 }
