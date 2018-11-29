@@ -5,14 +5,14 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
-	github.com/friendsofgo/graphiql v0.2.0 // indirect
+	github.com/friendsofgo/graphiql v0.2.0
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gogo/googleapis v1.1.0
 	github.com/gogo/protobuf v1.1.1
 	github.com/golang/protobuf v1.2.0
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
-	github.com/graph-gophers/graphql-go v0.0.0-20181116072428-fd99376b56e9 // indirect
+	github.com/graph-gophers/graphql-go v0.0.0-20181116072428-fd99376b56e9
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.5.1
