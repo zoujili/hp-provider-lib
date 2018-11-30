@@ -30,7 +30,7 @@ func NewGraphQLConfigFromEnv() *GraphQLConfig {
 	logrus.WithFields(logrus.Fields{
 		"port":            port,
 		"graphiqlEnabled": graphiQlEnabled,
-	}).Debug("GRPCServer Config Initialized")
+	}).Debug("GraphQL Config Initialized")
 
 	return &GraphQLConfig{
 		Port:            port,
