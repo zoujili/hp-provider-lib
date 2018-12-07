@@ -82,6 +82,7 @@ func (p *Jaeger) Init() error {
 	}.NewTracer(
 		config.Metrics(metrics),
 		config.Logger(logger),
+		config.ZipkinSharedRPCSpan(true),
 	)
 
 	if err != nil {
