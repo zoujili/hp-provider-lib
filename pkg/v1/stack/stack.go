@@ -66,13 +66,12 @@ func (s *Stack) MustClose() {
 	closeOnce.Do(func() {
 		for i := len(s.providers) - 1; i >= 0; i-- {
 			name := p.Name(s.providers[i])
-			logrus.Info(name + " Closing...")
+			logrus.Debugf(" %s Closing...", name)
 
 			if err := s.providers[i].Close(); err != nil {
-				panic(err)
+				logrus.WithError(err).Panicf("%s Failed to close", name)
 			}
-
-			logrus.Info(name + " Closed")
+			logrus.Infof("%s Closed", name)
 		}
 	})
 }
