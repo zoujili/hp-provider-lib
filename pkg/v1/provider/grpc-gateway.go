@@ -171,9 +171,11 @@ func (p *GRPCGateway) Close() error {
 		return nil
 	}
 
-	if err := p.ClientConn.Close(); err != nil {
-		logrus.WithError(err).Errorf("Error while closing GRPCGateway to GRPCClient connection")
-		return err
+	if p.ClientConn != nil {
+		if err := p.ClientConn.Close(); err != nil {
+			logrus.WithError(err).Errorf("Error while closing GRPCGateway to GRPCClient connection")
+			return err
+		}
 	}
 
 	return nil
