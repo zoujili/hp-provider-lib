@@ -97,9 +97,11 @@ func GetJWTToken(ctx context.Context) *jwt.Token {
 }
 
 func GetJWTClaim(ctx context.Context, name string) string {
-	claims, ok := GetJWTToken(ctx).Claims.(jwt.MapClaims)
-	if !ok {
-		return ""
+	token := GetJWTToken(ctx)
+	if token != nil {
+		if claims, ok := GetJWTToken(ctx).Claims.(jwt.MapClaims); ok {
+			return fmt.Sprintf("%s", claims[name])
+		}
 	}
-	return fmt.Sprintf("%s", claims[name])
+	return ""
 }
