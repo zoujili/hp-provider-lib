@@ -39,7 +39,7 @@ func main() {
 	natsProvider := provider.NewNats(natsConfig, probesProvider)
 	st.MustInit(natsProvider)
 
-	jwtConfig := middleware.NewJTWConfigFromEnv()
+	jwtConfig := middleware.NewJWTConfigFromEnv()
 	jwtMiddleware := middleware.NewJWT(jwtConfig)
 
 	graphqlConfig := provider.NewGraphQLConfigFromEnv()

@@ -15,7 +15,7 @@ type JWTConfig struct {
 	Valid    bool
 }
 
-func NewJTWConfigFromEnv() *JWTConfig {
+func NewJWTConfigFromEnv() *JWTConfig {
 	v := viper.New()
 	v.SetEnvPrefix("JWT")
 	v.AutomaticEnv()
