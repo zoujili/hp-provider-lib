@@ -1,10 +1,12 @@
 package provider
 
 import (
+	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
 	"github.com/friendsofgo/graphiql"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/graph-gophers/graphql-go/log"
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -95,7 +97,7 @@ func (p *GraphQL) Close() error {
 }
 
 func (p *GraphQL) SetSchema(data string, resolver interface{}) error {
-	schema, err := graphql.ParseSchema(data, resolver)
+	schema, err := graphql.ParseSchema(data, resolver, graphql.Logger(new(graphqlLogger)))
 	if err != nil {
 		return err
 	}
@@ -110,4 +112,12 @@ func (p *GraphQL) getHandler() http.Handler {
 		handler = mw.Handler(handler)
 	}
 	return handler
+}
+
+type graphqlLogger struct {
+	log.Logger
+}
+
+func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
+	logrus.Panicf("GraphQL panic occurred: %v", value)
 }
