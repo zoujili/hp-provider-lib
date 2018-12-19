@@ -2,20 +2,22 @@ package provider
 
 import (
 	"context"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
 	"time"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/options"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 // MongoDBConfig ...
 type MongoDBConfig struct {
-	URI             string
-	Database        string
-	Timeout         time.Duration
-	MaxConnsPerHost uint16
+	URI               string
+	Database          string
+	Timeout           time.Duration
+	MaxPoolSize       uint16
+	MaxConnIdleTime   time.Duration
+	HeartbeatInterval time.Duration
 }
 
 // NewMongoDBConfigFromEnv ...
@@ -33,21 +35,31 @@ func NewMongoDBConfigFromEnv() *MongoDBConfig {
 	v.SetDefault("TIMEOUT", 20)
 	timeout := v.GetDuration("TIMEOUT") * time.Second
 
-	v.SetDefault("MAX_CONNS_PER_HOST", 16)
-	maxConnsPerHost := uint16(v.GetInt("MAX_CONNS_PER_HOST"))
+	v.SetDefault("MAX_POOL_SIZE", 16)
+	maxPoolSize := uint16(v.GetInt64("MAX_POOL_SIZE"))
+
+	v.SetDefault("MAX_CONN_IDLE_TIME", 30)
+	maxConnIdleTime := v.GetDuration("MAX_CONN_IDLE_TIME") * time.Second
+
+	v.SetDefault("HEARTBEAT_INTERVAL", 15)
+	heartbeatInterval := v.GetDuration("HEARTBEAT_INTERVAL") * time.Second
 
 	logrus.WithFields(logrus.Fields{
 		"uri":                uri,
 		"database":           database,
 		"timeout":            timeout,
-		"max_conns_per_host": maxConnsPerHost,
+		"max_pool_size":      maxPoolSize,
+		"max_conn_idle_time": maxConnIdleTime,
+		"heartbeat_interval": heartbeatInterval,
 	}).Debug("MongoDB Config Initialized")
 
 	return &MongoDBConfig{
-		URI:             uri,
-		Database:        database,
-		Timeout:         timeout,
-		MaxConnsPerHost: maxConnsPerHost,
+		URI:               uri,
+		Database:          database,
+		Timeout:           timeout,
+		MaxPoolSize:       maxPoolSize,
+		MaxConnIdleTime:   maxConnIdleTime,
+		HeartbeatInterval: heartbeatInterval,
 	}
 }
 
@@ -73,8 +85,10 @@ func NewMongoDB(config *MongoDBConfig, probesProvider *Probes, appProvider *App)
 // Init ...
 func (p *MongoDB) Init() error {
 	opts := options.Client()
-	opts.SetMaxConnsPerHost(p.Config.MaxConnsPerHost)
-	opts.SetMaxIdleConnsPerHost(p.Config.MaxConnsPerHost)
+	opts.SetConnectTimeout(p.Config.Timeout)
+	opts.SetMaxPoolSize(p.Config.MaxPoolSize)
+	opts.SetMaxConnIdleTime(p.Config.MaxConnIdleTime)
+	opts.SetHeartbeatInterval(p.Config.HeartbeatInterval)
 
 	if p.appProvider != nil {
 		opts.SetAppName(p.appProvider.Name())
@@ -86,7 +100,7 @@ func (p *MongoDB) Init() error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout*time.Second)
 	defer cancel()
 
 	err = client.Connect(ctx)
@@ -101,10 +115,8 @@ func (p *MongoDB) Init() error {
 		return err
 	}
 
-	db := client.Database(p.Config.Database)
-
 	p.Client = client
-	p.Database = db
+	p.Database = client.Database(p.Config.Database)
 
 	if p.probesProvider != nil {
 		p.probesProvider.AddLivenessProbes(p.livenessProbe)
@@ -138,6 +150,5 @@ func (p *MongoDB) livenessProbe() error {
 	}
 
 	logrus.Debug("MongoDB LivenessProbe Succeeded")
-
 	return nil
 }

@@ -18,7 +18,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.5.1
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/mongodb/mongo-go-driver v0.0.18
+	github.com/mongodb/mongo-go-driver v0.1.0
 	github.com/nats-io/gnatsd v1.3.0 // indirect
 	github.com/nats-io/go-nats v1.6.0
 	github.com/nats-io/nuid v1.0.0 // indirect

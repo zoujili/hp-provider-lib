@@ -242,8 +242,10 @@ NewMongoDBConfigEnv() config:
 | --- | --- | --- | --- |
 | MONGODB_URI | string | mongodb://127.0.0.1:27017 | MongoDB server URI |
 | MONGODB_DATABASE | string | test | Database name |
-| MONGODB_TIMEOUT | int | 20 | Max time to connect to DB |
-| MONGODB_MAX_CONNS_PER_HOST | int | 16 | Max connection pool size |
+| MONGODB_TIMEOUT | int | 20 | Max time for initial connection |
+| MONGODB_MAX_POOL_SIZE | int | 16 | Max connection pool size |
+| MONGODB_MAX_CONN_IDLE_TIME | int | 30 | Max time for idle connections to be stopped |
+| MONGODB_HEARTBEAT_INTERVAL | int | 15 | Interval between connection checks |
 
 ---
 
