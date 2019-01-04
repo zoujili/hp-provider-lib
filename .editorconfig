@@ -1,4 +1,3 @@
-# ISAAC root EditorConfig
 root = true
 
 [*]
@@ -7,8 +6,8 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.proto]
-indent_style = space
+[{*.go, go.mod, go.sum, MakeFile}]
+indent_style = tab
 indent_size = 4
 
 [*.md]
