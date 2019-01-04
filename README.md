@@ -1,15 +1,18 @@
 # lib-fs-provider-go
 
-FitStation provider library for golang, that provide generic an consistent setup of commonly components.
+FitStation provider library for golang, containing commonly used components to use within services.
+
+Use the Stack to control providers (initialization, running and closing) by adding them. \
+Examples can be found at the [bottom of this document](#Examples).
 
 ## Installation
 
-If you want to use this in a service, just go get it.
+If you want to use this in a service, just "go get it".
 ```shell
 go get -u github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go
 ```
 
-To work on this project, fork it and clone the repository outside of your $GOPATH. \
+To work on this library, fork it and clone the repository outside of your $GOPATH. \
 It has to be outside, since Go 1.11 by default doesn't support modules inside the $GOPATH.
 
 ## Run basic examples
