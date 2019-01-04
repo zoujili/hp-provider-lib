@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"github.com/opentracing/opentracing-go"
 	"net"
 	"time"
 
@@ -10,6 +11,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+// Nats event
+type NatsEvent interface {
+	Marshal() (data []byte, err error)
+}
 
 // NatsConfig ...
 type NatsConfig struct {
@@ -143,6 +149,26 @@ func (cd *customDialer) Dial(network, address string) (net.Conn, error) {
 
 			time.Sleep(cd.connectTimeWait)
 		}
+	}
+}
+
+// Send an event to Nats. Can be called even if Nats is disabled.
+func (p *Nats) EmitEvent(ctx context.Context, event NatsEvent, subject string) {
+	if p == nil || !p.Config.Enabled {
+		return
+	}
+
+	span, ctx := opentracing.StartSpanFromContext(ctx, "emit_event")
+	span.SetTag("subject", subject)
+	defer span.Finish()
+
+	data, err := event.Marshal()
+	if err != nil {
+		logrus.WithError(err).Error("Unable to marshal event")
+		return
+	}
+	if err := p.Client.Publish(subject, data); err != nil {
+		logrus.WithError(err).Error("Error while emitting event")
 	}
 }
 
