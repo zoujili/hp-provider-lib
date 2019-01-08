@@ -1,15 +1,11 @@
 package provider
 
 import (
-	"fmt"
-	"io"
-	"os"
-	"path"
-	"reflect"
-	"runtime"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"io"
+	"os"
+	"reflect"
 )
 
 // LogrusConfig ...
@@ -53,6 +49,7 @@ func NewLogrus(config *LogrusConfig) *Logrus {
 // Init ...
 func (p *Logrus) Init() error {
 	logrus.SetLevel(p.Config.Level)
+	logrus.StandardLogger().SetReportCaller(true)
 
 	if p.Config.Formatter != nil {
 		logrus.SetFormatter(p.Config.Formatter)
@@ -118,32 +115,10 @@ func ParseEnv() (logrus.Level, logrus.Formatter, io.Writer) {
 
 // NewLogger ...
 func NewLogger(level logrus.Level, formatter logrus.Formatter, output io.Writer) *logrus.Logger {
-	logrus.AddHook(&SourceHook{})
-
 	logger := logrus.New()
 	logger.SetLevel(level)
 	logger.Formatter = formatter
 	logger.SetOutput(output)
+	logger.SetReportCaller(true)
 	return logger
-}
-
-// Hook to add the source of a message to the log (only for WARN and higher).
-type SourceHook struct {
-	logrus.Hook
-}
-
-func (h SourceHook) Levels() []logrus.Level {
-	return []logrus.Level{
-		logrus.WarnLevel,
-		logrus.ErrorLevel,
-		logrus.FatalLevel,
-	}
-}
-
-func (h SourceHook) Fire(entry *logrus.Entry) error {
-	if pc, file, line, ok := runtime.Caller(10); ok {
-		name := runtime.FuncForPC(pc).Name()
-		entry.Data["source"] = fmt.Sprintf("%s:%v:%s", path.Base(file), line, path.Base(name))
-	}
-	return nil
 }
