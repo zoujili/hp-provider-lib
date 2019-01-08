@@ -49,7 +49,6 @@ func NewLogrus(config *LogrusConfig) *Logrus {
 // Init ...
 func (p *Logrus) Init() error {
 	logrus.SetLevel(p.Config.Level)
-	logrus.StandardLogger().SetReportCaller(true)
 
 	if p.Config.Formatter != nil {
 		logrus.SetFormatter(p.Config.Formatter)
@@ -119,6 +118,5 @@ func NewLogger(level logrus.Level, formatter logrus.Formatter, output io.Writer)
 	logger.SetLevel(level)
 	logger.Formatter = formatter
 	logger.SetOutput(output)
-	logger.SetReportCaller(true)
 	return logger
 }
