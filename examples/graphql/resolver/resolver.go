@@ -2,16 +2,19 @@ package resolver
 
 import (
 	"context"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware/jwt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/graphql"
 	"github.com/sirupsen/logrus"
 )
 
 type RootResolver struct {
-	graphqlProvider *provider.GraphQL
+	provider.AbstractProvider
+
+	graphqlProvider *graphql.GraphQL
 }
 
-func NewRootResolver(graphqlProvider *provider.GraphQL) *RootResolver {
+func NewRootResolver(graphqlProvider *graphql.GraphQL) *RootResolver {
 	return &RootResolver{
 		graphqlProvider: graphqlProvider,
 	}
@@ -30,17 +33,13 @@ func (r *RootResolver) Init() error {
 	return r.graphqlProvider.SetSchema(schema, r)
 }
 
-func (r *RootResolver) Close() error {
-	return nil
-}
-
 func (r *RootResolver) Ping(ctx context.Context) string {
 	logrus.WithFields(logrus.Fields{
-		"claim_audience":   middleware.GetJWTClaim(ctx, "aud"),
-		"claim_expires_at": middleware.GetJWTClaim(ctx, "exp"),
-		"claim_issued_at":  middleware.GetJWTClaim(ctx, "iat"),
-		"claim_issuer":     middleware.GetJWTClaim(ctx, "iss"),
-		"jwt_valid":        middleware.GetJWTToken(ctx).Valid,
+		"claim_audience":   jwt.GetClaim(ctx, "aud"),
+		"claim_expires_at": jwt.GetClaim(ctx, "exp"),
+		"claim_issued_at":  jwt.GetClaim(ctx, "iat"),
+		"claim_issuer":     jwt.GetClaim(ctx, "iss"),
+		"jwt_valid":        jwt.GetToken(ctx).Valid,
 	}).Info("Received message")
 	return "pong"
 }
