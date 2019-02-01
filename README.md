@@ -74,6 +74,11 @@ type RunProvider interface {
 }
 ```
 
+The easiest way to implement these interfaces is by extending the Abstract structs. \
+Using these structs, you (for example) don't have to add the Init() method if your Provider doesn't need initialization.
+
+The AbstractRunProvider does not provide a Run() method, since any RunProvider should always need logic in that method.
+
 #### Initialization and launching
 
 Providers are always first initialized (as soon as st.MustInit() is called). \
@@ -92,12 +97,12 @@ This method is normally called inside the Run() method of the provider.
 Will configure logrus global logger to use the defined configuration.
 
 ```go
-logrusConfig := provider.NewLogrusConfigFromEnv()
-logrusProvider := provider.NewLogrus(logrusConfig)
+logrusConfig := logrus.NewConfigFromEnv()
+logrusProvider := logrus.New(logrusConfig)
 st.MustInit(logrusProvider)
 ```
 
-NewLogrusConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -112,12 +117,12 @@ NewLogrusConfigFromEnv() config:
 Stores App info like name, version, ...
 
 ```go
-appConfig := provider.NewAppConfigEnv()
-appProvider := provider.NewApp(appConfig)
+appConfig := app.NewConfigEnv()
+appProvider := app.NewApp(appConfig)
 st.MustInit(appProvider)
 ```
 
-NewAppConfigEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -138,12 +143,12 @@ st.MustInit(appProvider)
 Will setup a HTTP server with Prometheus endpoint to expose metrics.
 
 ```go
-prometheusConfig := provider.NewPrometheusConfigFromEnv()
-prometheusProvider := provider.NewPrometheus(prometheusConfig)
+prometheusConfig := prometheus.NewConfigFromEnv()
+prometheusProvider := prometheus.New(prometheusConfig)
 st.MustInit(prometheusProvider)
 ```
 
-NewPrometheusConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -158,12 +163,12 @@ NewPrometheusConfigFromEnv() config:
 Will setup global OpenTracing with Jaeger backend.
 
 ```go
-jaegerConfig := provider.NewJaegerConfigFromEnv()
-jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
+jaegerConfig := jaeger.NewConfigFromEnv()
+jaegerProvider := jaeger.New(jaegerConfig, appProvider)
 st.MustInit(jaegerProvider)
 ```
 
-NewJaegerConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -178,12 +183,12 @@ NewJaegerConfigFromEnv() config:
 Will setup a HTTP server with PPROF endpoint to allow profiling.
 
 ```go
-pprofConfig := provider.NewPProfConfigFromEnv()
-pprofProvider := provider.NewPProf(pprofConfig)
+pprofConfig := pprof.NewConfigFromEnv()
+pprofProvider := pprof.New(pprofConfig)
 st.MustInit(pprofProvider)
 ```
 
-NewPProfConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -199,12 +204,12 @@ Will setup a HTTP server with Liveness and Readiness endpoints. \
 These are mainly used by Kubernetes to check the state of the application.
 
 ```go
-probesConfig := provider.NewProbesConfigEnv()
-probesProvider := provider.NewProbes(probesConfig)
+probesConfig := probes.NewConfigFromEnv()
+probesProvider := probes.New(probesConfig)
 st.MustInit(probesProvider)
 ```
 
-NewProbesConfigEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -234,12 +239,12 @@ Will setup a reusable connection to MongoDB server.
 Usage of the probeProvider is optional. If set, the probe will return successfully when its able to ping the DB.
 
 ```go
-mongodbConfig := provider.NewMongoDBConfigEnv()
-mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
+mongodbConfig := mongodb.NewConfigFromEnv()
+mongodbProvider := mongodb.New(mongodbConfig, probesProvider, appProvider)
 st.MustInit(mongodbProvider)
 ```
 
-NewMongoDBConfigEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -259,12 +264,12 @@ Will setup a reusable connection to Nats (events).
 Usage of the probeProvider is optional, if set: the probe will return successfully when its connected to Nats.
 
 ```go
-natsConfig := provider.NewNatsConfigEnv()
-natsProvider := provider.NewNats(natsConfig, probesProvider)
+natsConfig := nats.NewConfigFromEnv()
+natsProvider := nats.New(natsConfig, probesProvider)
 st.MustInit(natsProvider)
 ```
 
-NewNatsConfigEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -279,12 +284,12 @@ NewNatsConfigEnv() config:
 Will setup a GRPC server.
 
 ```go
-grpcServerConfig := provider.NewGRPCServerConfigEnv()
-grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+grpcServerConfig := grpc.NewConfigFromEnv()
+grpcServerProvider := grpc.New(grpcServerConfig)
 st.MustInit(grpcServerProvider)
 ```
 
-NewGRPCServerConfigEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -298,12 +303,12 @@ NewGRPCServerConfigEnv() config:
 Will setup a HTTP server to act as REST gateway to the GRPC Server.
 
 ```go
-grpcGatewayConfig := provider.NewGRPCGatewayConfigFromEnv()
-grpcGatewayProvider := provider.NewGRPCGateway(grpcGatewayConfig, grpcServerProvider)
+grpcGatewayConfig := gateway.NewConfigFromEnv()
+grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
 st.MustInit(grpcGatewayProvider)
 ```
 
-NewGRPCGatewayConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -320,12 +325,12 @@ Will setup a HTTP server on which to expose a GraphQL endpoint.
 The middlewareChain is optional. For more info, see the [Middlewares](#Middlewares) section.
 
 ```go
-graphqlConfig := provider.NewGraphQLConfigFromEnv()
-graphqlProvider := provider.NewGraphQL(graphqlConfig, ...middlewareChain)
+graphqlConfig := graphql.NewConfigFromEnv()
+graphqlProvider := graphql.New(graphqlConfig, ...middlewareChain)
 st.MustInit(graphqlProvider)
 ```
 
-NewGraphQLConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -356,11 +361,11 @@ Middlewares are not providers and thus do not need the stack to know them.
 Will decode a JWT in the authorization header and pass this to the context (key: "jwt").
 
 ```go
-jwtConfig := middleware.NewJWTConfigFromEnv()
-jwtMiddleware := middleware.NewJWT(jwtConfig)
+jwtConfig := middleware.NewConfigFromEnv()
+jwtMiddleware := middleware.New(jwtConfig)
 ```
 
-NewJWTConfigFromEnv() config:
+NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
@@ -375,7 +380,16 @@ NewJWTConfigFromEnv() config:
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
 
@@ -384,53 +398,53 @@ func main() {
     defer st.MustClose()
 
     // Logging
-    logrusConfig := provider.NewLogrusConfigFromEnv()
-    logrusProvider := provider.NewLogrus(logrusConfig)
+    logrusConfig := logrus.NewConfigFromEnv()
+    logrusProvider := logrus.New(logrusConfig)
     st.MustInit(logrusProvider)
 
     // Root app
-    appConfig := provider.NewAppConfigFromEnv()
-    appProvider := provider.NewApp(appConfig)
+    appConfig := app.NewConfigFromEnv()
+    appProvider := app.New(appConfig)
     st.MustInit(appProvider)
 
     // Prometheus (metrics)
-    prometheusConfig := provider.NewPrometheusConfigFromEnv()
-    prometheusProvider := provider.NewPrometheus(prometheusConfig)
+    prometheusConfig := prometheus.NewConfigFromEnv()
+    prometheusProvider := prometheus.New(prometheusConfig)
     st.MustInit(prometheusProvider)
 
     // Jaeger (tracing)
-    jaegerConfig := provider.NewJaegerConfigFromEnv()
-    jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
+    jaegerConfig := jaeger.NewConfigFromEnv()
+    jaegerProvider := jaeger.New(jaegerConfig, appProvider)
     st.MustInit(jaegerProvider)
 
     // PProf (profiling)
-    pprofConfig := provider.NewPProfConfigFromEnv()
-    pprofProvider := provider.NewPProf(pprofConfig)
+    pprofConfig := pprof.NewConfigFromEnv()
+    pprofProvider := pprof.New(pprofConfig)
     st.MustInit(pprofProvider)
 
     // Probes (liveness/readiness for Kubernetes)
-    probesConfig := provider.NewProbesConfigFromEnv()
-    probesProvider := provider.NewProbes(probesConfig)
+    probesConfig := probes.NewConfigFromEnv()
+    probesProvider := probes.New(probesConfig)
     st.MustInit(probesProvider)
 
     // MongoDB
-    mongodbConfig := provider.NewMongoDBConfigFromEnv()
-    mongodbProvider := provider.NewMongoDB(mongodbConfig, probesProvider, appProvider)
+    mongodbConfig := mongodb.NewConfigFromEnv()
+    mongodbProvider := mongodb.New(mongodbConfig, probesProvider, appProvider)
     st.MustInit(mongodbProvider)
 
     // Nats (events)
-    natsConfig := provider.NewNatsConfigFromEnv()
-    natsProvider := provider.NewNats(natsConfig, probesProvider)
+    natsConfig := nats.NewConfigFromEnv()
+    natsProvider := nats.New(natsConfig, probesProvider)
     st.MustInit(natsProvider)
 
-    // gRPC server
-    grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
-    grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+    // gRPC Server
+    grpcServerConfig := grpc.NewConfigFromEnv()
+    grpcServerProvider := grpc.New(grpcServerConfig)
     st.MustInit(grpcServerProvider)
 
-    // gRPC gateway
-    grpcGatewayConfig := provider.NewGRPCGatewayConfigFromEnv()
-    grpcGatewayProvider := provider.NewGRPCGateway(grpcGatewayConfig, grpcServerProvider)
+    // gRPC Gateway
+    grpcGatewayConfig := gateway.NewConfigFromEnv()
+    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
     st.MustInit(grpcGatewayProvider)
 
     // Resources
@@ -456,8 +470,16 @@ func main() {
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware/jwt"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/graphql"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
 
@@ -466,47 +488,47 @@ func main() {
     defer st.MustClose()
 
     // Logging
-    logrusConfig := provider.NewLogrusConfigFromEnv()
-    logrusProvider := provider.NewLogrus(logrusConfig)
+    logrusConfig := logrus.NewConfigFromEnv()
+    logrusProvider := logrus.New(logrusConfig)
     st.MustInit(logrusProvider)
 
     // Root app
-    appConfig := provider.NewAppConfigFromEnv()
-    appProvider := provider.NewApp(appConfig)
+    appConfig := app.NewConfigFromEnv()
+    appProvider := app.New(appConfig)
     st.MustInit(appProvider)
 
     // Prometheus (metrics)
-    prometheusConfig := provider.NewPrometheusConfigFromEnv()
-    prometheusProvider := provider.NewPrometheus(prometheusConfig)
+    prometheusConfig := prometheus.NewConfigFromEnv()
+    prometheusProvider := prometheus.New(prometheusConfig)
     st.MustInit(prometheusProvider)
 
     // Jaeger (tracing)
-    jaegerConfig := provider.NewJaegerConfigFromEnv()
-    jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
+    jaegerConfig := jaeger.NewConfigFromEnv()
+    jaegerProvider := jaeger.New(jaegerConfig, appProvider)
     st.MustInit(jaegerProvider)
 
     // PProf (profiling)
-    pprofConfig := provider.NewPProfConfigFromEnv()
-    pprofProvider := provider.NewPProf(pprofConfig)
+    pprofConfig := pprof.NewConfigFromEnv()
+    pprofProvider := pprof.New(pprofConfig)
     st.MustInit(pprofProvider)
 
     // Probes (liveness/readiness for Kubernetes)
-    probesConfig := provider.NewProbesConfigFromEnv()
-    probesProvider := provider.NewProbes(probesConfig)
+    probesConfig := probes.NewConfigFromEnv()
+    probesProvider := probes.New(probesConfig)
     st.MustInit(probesProvider)
 
     // Nats (events)
-    natsConfig := provider.NewNatsConfigFromEnv()
-    natsProvider := provider.NewNats(natsConfig, probesProvider)
+    natsConfig := nats.NewConfigFromEnv()
+    natsProvider := nats.New(natsConfig, probesProvider)
     st.MustInit(natsProvider)
 
     // Middleware
-    jwtConfig := middleware.NewJTWConfigFromEnv()
-    jwtMiddleware := middleware.NewJWT(jwtConfig)
+    jwtConfig := jwt.NewConfigFromEnv()
+    jwtMiddleware := jwt.New(jwtConfig)
 
     // GraphQL
-    graphqlConfig := provider.NewGraphQLConfigFromEnv()
-    graphqlProvider := provider.NewGraphQL(graphqlConfig, jwtMiddleware)
+    graphqlConfig := graphql.NewConfigFromEnv()
+    graphqlProvider := graphql.New(graphqlConfig, jwtMiddleware)
     st.MustInit(graphqlProvider)
 
     // Resources
