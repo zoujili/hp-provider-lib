@@ -56,7 +56,7 @@ func NewConfigFromEnv() *Config {
 		"max_pool_size":      maxPoolSize,
 		"max_conn_idle_time": maxConnIdleTime,
 		"heartbeat_interval": heartbeatInterval,
-	}).Debug("MongoDB Config Initialized")
+	}).Debug("MongoDB Config initialized")
 
 	return &Config{
 		URI:               uri,
