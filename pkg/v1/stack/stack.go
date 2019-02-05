@@ -63,7 +63,7 @@ func (s *Stack) MustClose() {
 			s.logger.Debugf(" %s closing...", name)
 
 			if err := s.providers[i].Close(); err != nil {
-				logrus.WithError(err).Panicf("%s failed to close", name)
+				s.logger.WithError(err).Panicf("%s failed to close", name)
 			}
 
 			s.logger.Infof("%s closed", name)
