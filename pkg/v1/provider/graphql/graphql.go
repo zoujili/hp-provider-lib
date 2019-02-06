@@ -43,6 +43,7 @@ func (p *GraphQL) Run() error {
 	mux := http.NewServeMux()
 	mux.Handle("/", p.getHandler())
 	if p.Config.GraphiQLEnabled {
+		logEntry = logEntry.WithField("graphiql", p.Config.GraphiQLEndpoint)
 		graphiqlHandler, err := graphiql.NewGraphiqlHandler("/")
 		if err != nil {
 			logEntry.WithError(err).Error("GraphiQL handler could not be started")
