@@ -476,7 +476,6 @@ import (
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
     "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
@@ -516,11 +515,6 @@ func main() {
     probesConfig := probes.NewConfigFromEnv()
     probesProvider := probes.New(probesConfig)
     st.MustInit(probesProvider)
-
-    // Nats (events)
-    natsConfig := nats.NewConfigFromEnv()
-    natsProvider := nats.New(natsConfig, probesProvider)
-    st.MustInit(natsProvider)
 
     // Middleware
     jwtConfig := jwt.NewConfigFromEnv()
