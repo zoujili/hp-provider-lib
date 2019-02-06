@@ -2,7 +2,14 @@ package main
 
 import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
 
@@ -10,36 +17,36 @@ func main() {
 	st := stack.New()
 	defer st.MustClose()
 
-	logrusConfig := provider.NewLogrusConfigFromEnv()
-	logrusProvider := provider.NewLogrus(logrusConfig)
+	logrusConfig := logrus.NewConfigFromEnv()
+	logrusProvider := logrus.New(logrusConfig)
 	st.MustInit(logrusProvider)
 
-	appConfig := provider.NewAppConfigFromEnv()
-	appProvider := provider.NewApp(appConfig)
+	appConfig := app.NewConfigFromEnv()
+	appProvider := app.New(appConfig)
 	st.MustInit(appProvider)
 
-	prometheusConfig := provider.NewPrometheusConfigFromEnv()
-	prometheusProvider := provider.NewPrometheus(prometheusConfig)
+	prometheusConfig := prometheus.NewConfigFromEnv()
+	prometheusProvider := prometheus.New(prometheusConfig)
 	st.MustInit(prometheusProvider)
 
-	jaegerConfig := provider.NewJaegerConfigFromEnv()
-	jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
+	jaegerConfig := jaeger.NewConfigFromEnv()
+	jaegerProvider := jaeger.New(jaegerConfig, appProvider)
 	st.MustInit(jaegerProvider)
 
-	pprofConfig := provider.NewPProfConfigFromEnv()
-	pprofProvider := provider.NewPProf(pprofConfig)
+	pprofConfig := pprof.NewConfigFromEnv()
+	pprofProvider := pprof.New(pprofConfig)
 	st.MustInit(pprofProvider)
 
-	probesConfig := provider.NewProbesConfigFromEnv()
-	probesProvider := provider.NewProbes(probesConfig)
+	probesConfig := probes.NewConfigFromEnv()
+	probesProvider := probes.New(probesConfig)
 	st.MustInit(probesProvider)
 
-	grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
-	grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
+	grpcServerConfig := grpc.NewConfigFromEnv()
+	grpcServerProvider := grpc.New(grpcServerConfig)
 	st.MustInit(grpcServerProvider)
 
-	grpcGatewayConfig := provider.NewGRPCGatewayConfigFromEnv()
-	grpcGatewayProvider := provider.NewGRPCGateway(grpcGatewayConfig, grpcServerProvider)
+	grpcGatewayConfig := gateway.NewConfigFromEnv()
+	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
 	st.MustInit(grpcGatewayProvider)
 
 	pingService := server.NewPingService(grpcServerProvider, grpcGatewayProvider)

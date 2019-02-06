@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	provider "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 	"os"
 	"time"
@@ -17,7 +17,7 @@ func main() {
 	st := stack.New()
 	defer st.MustClose()
 
-	logrusProvider := provider.NewLogrus(&provider.LogrusConfig{
+	logrusProvider := provider.New(&provider.Config{
 		Level:     logrus.InfoLevel,
 		Formatter: &logrus.TextFormatter{},
 		Output:    os.Stderr,
