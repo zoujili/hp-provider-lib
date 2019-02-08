@@ -37,7 +37,10 @@ var _ = Describe("Logrus provider", func() {
 				Expect(logger.Formatter).To(Equal(&logrus.TextFormatter{ForceColors: true}))
 				Expect(logger.Out).To(Equal(os.Stdout))
 			})
-			os.Clearenv()
+
+			_ = os.Unsetenv("LOGRUS_LEVEL")
+			_ = os.Unsetenv("LOGRUS_FORMATTER")
+			_ = os.Unsetenv("LOGRUS_OUTPUT")
 		})
 	})
 	Context("Separate logger", func() {
@@ -67,7 +70,9 @@ var _ = Describe("Logrus provider", func() {
 			Expect(formatter).To(Equal(&logrus.TextFormatter{}))
 			Expect(writer).To(Equal(os.Stdout))
 
-			os.Clearenv()
+			_ = os.Unsetenv("LOGRUS_LEVEL")
+			_ = os.Unsetenv("LOGRUS_FORMATTER")
+			_ = os.Unsetenv("LOGRUS_OUTPUT")
 		})
 		It("Uses the defaults if no environment variables are set", func() {
 			lvl, formatter, writer := ParseEnv()
@@ -85,7 +90,9 @@ var _ = Describe("Logrus provider", func() {
 			Expect(formatter).To(Equal(&logrus.JSONFormatter{}))
 			Expect(writer).To(Equal(os.Stderr))
 
-			os.Clearenv()
+			_ = os.Unsetenv("LOGRUS_LEVEL")
+			_ = os.Unsetenv("LOGRUS_FORMATTER")
+			_ = os.Unsetenv("LOGRUS_OUTPUT")
 		})
 	})
 })
