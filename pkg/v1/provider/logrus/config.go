@@ -57,21 +57,25 @@ func ParseEnv() (logrus.Level, logrus.Formatter, io.Writer) {
 	v.SetDefault("FORMATTER", defaultFormatter)
 	var formatter logrus.Formatter
 	switch v.GetString("FORMATTER") {
-	case "json":
-		formatter = &logrus.JSONFormatter{}
 	case "text":
 		formatter = &logrus.TextFormatter{}
 	case "text_clr":
 		formatter = &logrus.TextFormatter{ForceColors: true}
+	case "json":
+		fallthrough
+	default:
+		formatter = &logrus.JSONFormatter{}
 	}
 
 	v.SetDefault("OUTPUT", defaultOutput)
 	var output io.Writer
 	switch v.GetString("OUTPUT") {
-	case "stderr":
-		output = os.Stderr
 	case "stdout":
 		output = os.Stdout
+	case "stderr":
+		fallthrough
+	default:
+		output = os.Stderr
 	}
 
 	return level, formatter, output
