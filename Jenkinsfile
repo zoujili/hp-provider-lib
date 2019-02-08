@@ -34,7 +34,7 @@ pipeline {
                 sh 'go vet ./pkg/... > ./output/go_vet || true'
                 sh 'rm -rf .cache'
                 sh 'go test -v ./pkg/... || true'
-                sh 'mv ./pkg/v1/test_*.xml ./output/'
+                sh 'mv ./pkg/v1/test_*.xml ./output/ 2>/dev/null'
                 sh 'golint ./pkg/... > ./output/go_lint'
                 sh 'gocyclo -over 15 ./pkg > ./output/go_cyclo'
                 sh 'ineffassign ./pkg > ./output/ineffassign || true'
