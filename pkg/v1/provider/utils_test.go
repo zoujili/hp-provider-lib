@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 func TestUtils(t *testing.T) {
 	RegisterFailHandlerWithT(t, Fail)
-	RunSpecs(t, "Provider utils test")
+	RunSpecsWithDefaultAndCustomReporters(t, "Provider utils test", test.LoadCustomReporters("../test_provider_utils.xml"))
 }
 
 var _ = Describe("Utils", func() {

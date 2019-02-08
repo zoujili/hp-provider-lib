@@ -1,6 +1,7 @@
 package logrus
 
 import (
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
@@ -10,7 +11,7 @@ import (
 
 func TestLogrus(t *testing.T) {
 	RegisterFailHandlerWithT(t, Fail)
-	RunSpecs(t, "Logrus provider test")
+	RunSpecsWithDefaultAndCustomReporters(t, "Logrus provider test", test.LoadCustomReporters("../../test_provider_logrus.xml"))
 }
 
 var _ = Describe("Logrus provider", func() {

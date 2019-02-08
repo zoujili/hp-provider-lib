@@ -20,7 +20,7 @@ pipeline {
             agent {
                 docker {
                     image 'quay.io/isaacfitstation/pims_microservice_code_analysis'
-                    args '-e HOME=. -e INCLUDE_JUNIT_REPORT=true'
+                    args '-e HOME=. -e TEST_JUNIT_REPORTER=true'
                     alwaysPull true
                     reuseNode true
                     registryUrl 'https://quay.io/user/isaacfitstation'

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -10,7 +11,7 @@ import (
 
 func TestApp(t *testing.T) {
 	RegisterFailHandlerWithT(t, Fail)
-	RunSpecs(t, "App provider test")
+	RunSpecsWithDefaultAndCustomReporters(t, "App provider test", test.LoadCustomReporters("../../test_provider_app.xml"))
 }
 
 var _ = Describe("App provider", func() {

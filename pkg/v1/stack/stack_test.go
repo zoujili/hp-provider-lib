@@ -2,6 +2,7 @@ package stack
 
 import (
 	"errors"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -13,7 +14,7 @@ import (
 
 func TestStack(t *testing.T) {
 	RegisterFailHandlerWithT(t, Fail)
-	RunSpecs(t, "Stack test")
+	RunSpecsWithDefaultAndCustomReporters(t, "Stack test", test.LoadCustomReporters("../test_stack.xml"))
 }
 
 var _ = Describe("Stack", func() {
