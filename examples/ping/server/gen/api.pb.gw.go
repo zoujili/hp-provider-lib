@@ -6,7 +6,7 @@ Package server is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package server
+package gen
 
 import (
 	"io"

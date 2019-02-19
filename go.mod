@@ -2,9 +2,13 @@ module github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go
 
 require (
 	github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go v0.0.0
+	github.com/Microsoft/go-winio v0.4.11 // indirect
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/docker v1.13.1
+	github.com/docker/go-connections v0.4.0
 	github.com/friendsofgo/graphiql v0.2.0
 	github.com/gogo/googleapis v1.1.0
 	github.com/gogo/protobuf v1.2.0
@@ -20,6 +24,7 @@ require (
 	github.com/nats-io/nuid v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.7.0
 	github.com/onsi/gomega v1.4.3
+	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opentracing/opentracing-go v1.0.2
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/prometheus/client_golang v0.9.1
