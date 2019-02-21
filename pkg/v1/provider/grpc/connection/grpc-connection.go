@@ -76,9 +76,11 @@ func (p *Connection) Run() error {
 }
 
 func (p *Connection) Close() error {
-	if err := p.Conn.Close(); err != nil {
-		logrus.WithError(err).Error("Could not close GRPC connection")
-		return err
+	if p.Conn != nil {
+		if err := p.Conn.Close(); err != nil {
+			logrus.WithError(err).Error("Could not close GRPC connection")
+			return err
+		}
 	}
 
 	return nil
