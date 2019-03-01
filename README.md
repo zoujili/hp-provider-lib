@@ -293,8 +293,8 @@ NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
-| GRPCSERVER_PORT | int | 3000 | GRPC server port  |
-| GRPCSERVER_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
+| GRPC_PORT | int | 3000 | GRPC server port  |
+| GRPC_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
 
 ---
 
@@ -312,9 +312,9 @@ NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
-| GRPCGATEWAY_ENABLED | bool | true | |
-| GRPCGATEWAY_PORT | int | 8080 | HTTP server port |
-| GRPCGATEWAY_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
+| GRPC_GATEWAY_ENABLED | bool | true | |
+| GRPC_GATEWAY_PORT | int | 8080 | HTTP server port |
+| GRPC_GATEWAY_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
 
 ---
 
