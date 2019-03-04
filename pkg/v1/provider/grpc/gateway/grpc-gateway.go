@@ -39,7 +39,7 @@ func New(config *Config, server *server.Server) *Gateway {
 
 func (p *Gateway) Run() error {
 	if !p.Config.Enabled {
-		logrus.Info("Gateway Provider not enabled")
+		logrus.Info("GRPC Gateway Provider not enabled")
 		return nil
 	}
 
@@ -87,7 +87,7 @@ func (p *Gateway) Run() error {
 		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamInterceptors...)),
 	)
 	if err != nil {
-		logEntry.WithError(err).Errorf("Gateway could not connect to GRPC service")
+		logEntry.WithError(err).Errorf("GRPC Gateway could not connect to GRPC server")
 		return err
 	}
 
