@@ -90,15 +90,15 @@ func (p *Server) Run() error {
 
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		logEntry.WithError(err).Error("GRPC Listener could not be created")
+		logEntry.WithError(err).Error("GRPC Server Listener could not be created")
 		return err
 	}
 	p.Listener = listener
 	p.SetRunning(true)
 
-	logEntry.Info("GRPC Provider launched")
+	logEntry.Info("GRPC Server Provider launched")
 	if err := p.Server.Serve(listener); err != nil {
-		logEntry.WithError(err).Error("GRPC Provider launch failed")
+		logEntry.WithError(err).Error("GRPC Server Provider launch failed")
 		return err
 	}
 

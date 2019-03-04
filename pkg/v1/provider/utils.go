@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 )
@@ -16,11 +16,11 @@ func WaitForRunningProvider(p RunProvider, timeoutSeconds time.Duration) error {
 		return nil
 	}
 
-	name := Name(p)
 	ctx, cancel := context.WithTimeout(context.Background(), timeoutSeconds*time.Second)
 	defer cancel()
 
-	ctxlogrus.Extract(ctx).WithField("timeout", timeoutSeconds).Debugf("Waiting for %s to run", name)
+	name := Name(p)
+	logrus.WithField("timeout", timeoutSeconds).Debugf("Waiting for %s to run...", name)
 	for {
 		if p.IsRunning() {
 			return nil
