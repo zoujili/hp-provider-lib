@@ -16,7 +16,7 @@ import (
 // GRPC Connection Provider.
 // Provides a dialed in connection that can be used to create GRPC clients from proto files.
 type Connection struct {
-	provider.AbstractRunProvider
+	provider.AbstractProvider
 
 	Config *Config
 	Conn   *grpc.ClientConn
@@ -30,7 +30,7 @@ func New(config *Config) *Connection {
 }
 
 // Creates the GRPC connection
-func (p *Connection) Run() error {
+func (p *Connection) Init() error {
 	addr := fmt.Sprintf("%s:%d", p.Config.Host, p.Config.Port)
 	logEntry := logrus.WithField("addr", addr)
 
@@ -70,7 +70,6 @@ func (p *Connection) Run() error {
 	}
 
 	p.Conn = conn
-	p.SetRunning(true)
 	logEntry.Info("GRPC connection opened")
 	return nil
 }

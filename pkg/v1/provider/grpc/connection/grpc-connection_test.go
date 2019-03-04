@@ -56,16 +56,6 @@ var _ = Describe("GRPC connection provider test", func() {
 				err := p.Init()
 				Expect(err).NotTo(HaveOccurred())
 			})
-
-			By("Running the Connection", func() {
-				go func() {
-					err := p.Run()
-					Expect(err).NotTo(HaveOccurred())
-				}()
-				err := provider.WaitForRunningProvider(p, 2*time.Second)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(p.IsRunning()).To(BeTrue())
-			})
 			By("Creating the PingService client", func() {
 				client = gen.NewPingServiceClient(p.Conn)
 				Expect(client).NotTo(BeNil())
