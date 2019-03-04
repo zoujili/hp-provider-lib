@@ -42,7 +42,7 @@ var _ = Describe("Utils", func() {
 				}()
 				time.Sleep(10 * time.Millisecond) // Make sure it waits a bit.
 				_ = p1.Run()
-				time.Sleep(1 * time.Millisecond) // Give the provider time to find out the other provider is running.
+				time.Sleep(10 * time.Millisecond) // Give the provider time to find out the other provider is running.
 				Expect(err).ToNot(HaveOccurred())
 				Expect(p2.IsRunning()).To(BeTrue())
 			})

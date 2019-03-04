@@ -23,6 +23,7 @@ func WaitForRunningProvider(p RunProvider, timeoutSeconds time.Duration) error {
 	logrus.WithField("timeout", timeoutSeconds).Debugf("Waiting for %s to run...", name)
 	for {
 		if p.IsRunning() {
+			logrus.Debugf("%s is running", name)
 			return nil
 		}
 		if ctx.Err() != nil {

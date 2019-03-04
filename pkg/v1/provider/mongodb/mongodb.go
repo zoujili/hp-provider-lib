@@ -5,11 +5,11 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
-	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // MongoDB Provider.
@@ -39,6 +39,7 @@ func New(config *Config, probesProvider *probes.Probes, appProvider *app.App) *M
 // Creates a MongoDB Client, connects to the database server and selects the configured database to be used.
 func (p *MongoDB) Init() error {
 	opts := options.Client()
+	opts.ApplyURI(p.Config.URI)
 	opts.SetConnectTimeout(p.Config.Timeout)
 	opts.SetMaxPoolSize(p.Config.MaxPoolSize)
 	opts.SetMaxConnIdleTime(p.Config.MaxConnIdleTime)
@@ -55,7 +56,7 @@ func (p *MongoDB) Init() error {
 	logEntry.Debug("Connecting to MongoDB server...")
 
 	// Create Client and connect to MongoDB.
-	client, err := mongo.NewClientWithOptions(p.Config.URI, opts)
+	client, err := mongo.NewClient(opts)
 	if err != nil {
 		logEntry.WithError(err).Error("MongoDB client creation failed")
 		return err
