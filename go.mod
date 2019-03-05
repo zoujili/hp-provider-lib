@@ -31,7 +31,7 @@ require (
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.0.0-rc1
 	go.uber.org/atomic v1.3.2 // indirect
-	golang.org/x/net v0.0.0-20181220203305-927f97764cc3
+	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd
 	google.golang.org/grpc v1.19.0
 )
 
