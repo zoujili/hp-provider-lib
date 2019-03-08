@@ -16,11 +16,20 @@ type Config struct {
 
 // Initializes the configuration from environment variables.
 func NewConfigFromEnv(prefix string) *Config {
+
+	fsv := viper.New()
+	fsv.SetEnvPrefix("FIT_STATION")
+	fsv.AutomaticEnv()
+
 	v := viper.New()
 	v.SetEnvPrefix(prefix)
 	v.AutomaticEnv()
 
-	v.SetDefault("HOST", defaultHost)
+	hostDefault := defaultHost
+	if host := fsv.GetString("HOST"); host != "" {
+		hostDefault = host
+	}
+	v.SetDefault("HOST", hostDefault)
 	host := v.GetString("HOST")
 
 	v.SetDefault("PORT", defaultPort)
