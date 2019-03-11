@@ -44,9 +44,6 @@ func (p *Connection) Run() error {
 	})
 	logEntry.Info("Establishing GRPC connection")
 
-	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
-	defer cancel()
-
 	logOpts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
@@ -71,8 +68,7 @@ func (p *Connection) Run() error {
 		streamInterceptors = append(streamInterceptors, grpc_logrus.PayloadStreamClientInterceptor(logEntry, p.logDeciderFunc))
 	}
 
-	conn, err := grpc.DialContext(ctx, addr,
-		grpc.WithBlock(),
+	conn, err := grpc.DialContext(context.Background(), addr,
 		grpc.WithInsecure(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{}),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryInterceptors...)),
