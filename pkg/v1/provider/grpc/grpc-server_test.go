@@ -27,8 +27,9 @@ var _ = Describe("GRPC server provider test", func() {
 
 		By("Creating and initializing the provider", func() {
 			p = New(&Config{
-				Port:       defaultPort,
-				LogPayload: true,
+				Port:         defaultPort,
+				LogPayload:   true,
+				EnableHealth: true,
 			})
 			err := p.Init()
 			Expect(err).NotTo(HaveOccurred())
@@ -58,6 +59,10 @@ var _ = Describe("GRPC server provider test", func() {
 
 			err = conn.Invoke(context.Background(), "/api.PingService/Ping", &request, &response)
 			Expect(err).NotTo(HaveOccurred())
+		})
+		By("Shutting down the server", func() {
+			err := p.Close()
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })

@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"time"
 )
 
@@ -18,21 +20,27 @@ import (
 type Connection struct {
 	provider.AbstractProvider
 
-	Config *Config
-	Conn   *grpc.ClientConn
+	Config         *Config
+	Conn           *grpc.ClientConn
+	Health         grpc_health_v1.HealthClient
+	probesProvider *probes.Probes
 }
 
 // Created a GRPC Connection Provider
-func New(config *Config) *Connection {
+func New(config *Config, probesProvider *probes.Probes) *Connection {
 	return &Connection{
-		Config: config,
+		Config:         config,
+		probesProvider: probesProvider,
 	}
 }
 
 // Creates the GRPC connection
 func (p *Connection) Init() error {
 	addr := fmt.Sprintf("%s:%d", p.Config.Host, p.Config.Port)
-	logEntry := logrus.WithField("addr", addr)
+	logEntry := logrus.WithFields(logrus.Fields{
+		"service": p.Config.Prefix,
+		"addr":    addr,
+	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
 	defer cancel()
@@ -74,6 +82,12 @@ func (p *Connection) Init() error {
 
 	p.Conn = conn
 	logEntry.Info("GRPC connection opened")
+	p.initHealthClient()
+
+	// Add live probes if possible.
+	if p.Config.EnableHealth && p.probesProvider != nil {
+		p.probesProvider.AddLivenessProbes(p.livenessProbe)
+	}
 	return nil
 }
 
@@ -88,7 +102,49 @@ func (p *Connection) Close() error {
 	return nil
 }
 
+func (p *Connection) CheckHealth(ctx context.Context) error {
+	if !p.Config.EnableHealth {
+		return nil
+	}
+	req := &grpc_health_v1.HealthCheckRequest{}
+	res, err := p.Health.Check(context.Background(), req)
+	if err != nil {
+		return err
+	}
+	logrus.WithFields(logrus.Fields{
+		"service": p.Config.Prefix,
+		"status":  res.Status,
+	}).Debug("GRPC Connection health check performed")
+
+	if res.Status != grpc_health_v1.HealthCheckResponse_SERVING {
+		return fmt.Errorf("unhealthy response from GRPC server: %s", res.Status.String())
+	}
+	return nil
+}
+
 func (p *Connection) logDeciderFunc(ctx context.Context, fullMethodName string) bool {
 	// TODO: Should we really log everything?
 	return true
+}
+
+func (p *Connection) initHealthClient() {
+	if !p.Config.EnableHealth {
+		logrus.WithField("service", p.Config.Prefix).Debug("GRPC Connection health disabled.")
+	}
+	p.Health = grpc_health_v1.NewHealthClient(p.Conn)
+}
+
+func (p *Connection) livenessProbe() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	logEntry := logrus.WithField("service", p.Config.Prefix)
+	err := p.CheckHealth(ctx)
+	if err != nil {
+		logEntry.WithError(err).Error("GRPC Connection liveness probe failed")
+		return err
+	}
+
+	logEntry.Debug("GRPC Connection liveness probe succeeded")
+	return nil
 }

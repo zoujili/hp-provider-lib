@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"net"
 	"time"
 
@@ -95,6 +97,7 @@ func (p *Server) Run() error {
 	}
 	p.Listener = listener
 	p.SetRunning(true)
+	p.registerHealthEndpoint()
 
 	logEntry.Info("GRPC Server Provider launched")
 	if err := p.Server.Serve(listener); err != nil {
@@ -119,4 +122,14 @@ func (p *Server) authFunc(ctx context.Context) (context.Context, error) {
 func (p *Server) logDeciderFunc(ctx context.Context, fullMethodName string, servingObject interface{}) bool {
 	// TODO: Should we really log everything?
 	return true
+}
+
+func (p *Server) registerHealthEndpoint() {
+	if !p.Config.EnableHealth {
+		logrus.Debug("GRPC Server health endpoint disabled")
+		return
+	}
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(p.Server, healthServer)
+	logrus.Debug("GRPC Server health endpoint registered")
 }

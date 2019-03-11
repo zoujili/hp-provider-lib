@@ -27,8 +27,9 @@ var _ = Describe("GRPC connection provider test", func() {
 	BeforeSuite(func() {
 		logrus.SetLevel(logrus.DebugLevel)
 		server = grpc.New(&grpc.Config{
-			Port:       3030,
-			LogPayload: true,
+			Port:         3030,
+			LogPayload:   true,
+			EnableHealth: true,
 		})
 		err := server.Init()
 		Expect(err).NotTo(HaveOccurred())
@@ -41,6 +42,10 @@ var _ = Describe("GRPC connection provider test", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(server.IsRunning()).To(BeTrue())
 	})
+	AfterSuite(func() {
+		err := server.Close()
+		Expect(err).ToNot(HaveOccurred())
+	})
 
 	Context("The GRPC ping service is running", func() {
 		It("Starts the GRPC connection", func() {
@@ -49,23 +54,36 @@ var _ = Describe("GRPC connection provider test", func() {
 
 			By("Creating and initializing the provider", func() {
 				p = New(&Config{
-					Host:       defaultHost,
-					Port:       3030,
-					Timeout:    defaultTimeout * time.Second,
-					LogPayload: true,
-				})
+					Host:         defaultHost,
+					Port:         3030,
+					Timeout:      defaultTimeout * time.Second,
+					LogPayload:   true,
+					EnableHealth: true,
+				}, nil)
 				err := p.Init()
 				Expect(err).NotTo(HaveOccurred())
+
+			})
+			By("Checking the connection health", func() {
+				ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+				defer cancel()
+
+				err := p.CheckHealth(ctx)
+				Expect(err).ToNot(HaveOccurred())
 			})
 			By("Creating the PingService client", func() {
 				client = gen.NewPingServiceClient(p.Conn)
 				Expect(client).NotTo(BeNil())
 			})
-			By("Calling the client", func() {
+			By("Sending a request", func() {
 				res, err := client.Ping(context.Background(), &gen.PingRequest{In: "Hello"})
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res).NotTo(BeNil())
 				Expect(res.Out).To(Equal("Hello"))
+			})
+			By("Stopping the connection", func() {
+				err := p.Close()
+				Expect(err).ToNot(HaveOccurred())
 			})
 		})
 	})
