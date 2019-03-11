@@ -25,6 +25,7 @@ var _ = Describe("GRPC connection provider test", func() {
 	var server *grpc.Server
 
 	BeforeSuite(func() {
+		logrus.SetLevel(logrus.DebugLevel)
 		server = grpc.New(&grpc.Config{
 			Port:       3030,
 			LogPayload: true,
@@ -43,7 +44,6 @@ var _ = Describe("GRPC connection provider test", func() {
 
 	Context("The GRPC ping service is running", func() {
 		It("Starts the GRPC connection", func() {
-			logrus.SetLevel(logrus.DebugLevel)
 			var p *Connection
 			var client gen.PingServiceClient
 
@@ -51,6 +51,7 @@ var _ = Describe("GRPC connection provider test", func() {
 				p = New(&Config{
 					Host:       defaultHost,
 					Port:       3030,
+					Timeout:    defaultTimeout * time.Second,
 					LogPayload: true,
 				})
 				err := p.Init()

@@ -34,7 +34,10 @@ func (p *Connection) Init() error {
 	addr := fmt.Sprintf("%s:%d", p.Config.Host, p.Config.Port)
 	logEntry := logrus.WithField("addr", addr)
 
-	opts := []grpc_logrus.Option{
+	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
+	defer cancel()
+
+	logOpts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
 		}),
@@ -44,12 +47,12 @@ func (p *Connection) Init() error {
 	unaryInterceptors := []grpc.UnaryClientInterceptor{
 		grpc_opentracing.UnaryClientInterceptor(),
 		grpc_prometheus.UnaryClientInterceptor,
-		grpc_logrus.UnaryClientInterceptor(logEntry, opts...),
+		grpc_logrus.UnaryClientInterceptor(logEntry, logOpts...),
 	}
 	streamInterceptors := []grpc.StreamClientInterceptor{
 		grpc_opentracing.StreamClientInterceptor(),
 		grpc_prometheus.StreamClientInterceptor,
-		grpc_logrus.StreamClientInterceptor(logEntry, opts...),
+		grpc_logrus.StreamClientInterceptor(logEntry, logOpts...),
 	}
 
 	// Payload is only logged by the server if it was configured to do so.
@@ -58,8 +61,8 @@ func (p *Connection) Init() error {
 		streamInterceptors = append(streamInterceptors, grpc_logrus.PayloadStreamClientInterceptor(logEntry, p.logDeciderFunc))
 	}
 
-	conn, err := grpc.DialContext(context.Background(),
-		addr,
+	conn, err := grpc.DialContext(ctx, addr,
+		grpc.WithBlock(),
 		grpc.WithInsecure(),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryInterceptors...)),
 		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamInterceptors...)),
