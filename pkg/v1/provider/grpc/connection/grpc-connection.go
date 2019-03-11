@@ -19,7 +19,7 @@ import (
 // GRPC Connection Provider.
 // Provides a stable connection to a GRPC server.
 type Connection struct {
-	provider.AbstractRunProvider
+	provider.AbstractProvider
 
 	Config         *Config
 	Conn           *grpc.ClientConn
@@ -36,13 +36,13 @@ func New(config *Config, probesProvider *probes.Probes) *Connection {
 }
 
 // Establishes the gRPC connection.
-func (p *Connection) Run() error {
+func (p *Connection) Init() error {
 	addr := fmt.Sprintf("%s:%d", p.Config.Host, p.Config.Port)
 	logEntry := logrus.WithFields(logrus.Fields{
 		"service": p.Config.Prefix,
 		"addr":    addr,
 	})
-	logEntry.Info("Establishing GRPC connection")
+	logEntry.Info("Initializing GRPC connection")
 
 	logOpts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
@@ -86,6 +86,10 @@ func (p *Connection) Run() error {
 }
 
 func (p *Connection) Close() error {
+	if p.Health != nil {
+		p.Config.EnableHealth = false
+		p.Health = nil
+	}
 	if p.Conn != nil {
 		if err := p.Conn.Close(); err != nil {
 			logrus.WithError(err).Error("Could not close GRPC connection")
