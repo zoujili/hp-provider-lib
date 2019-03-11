@@ -12,13 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/keepalive"
 	"time"
 )
 
 // GRPC Connection Provider.
-// Provides a dialed in connection that can be used to create GRPC clients from proto files.
+// Provides a stable connection to a GRPC server.
 type Connection struct {
-	provider.AbstractProvider
+	provider.AbstractRunProvider
 
 	Config         *Config
 	Conn           *grpc.ClientConn
@@ -26,7 +27,7 @@ type Connection struct {
 	probesProvider *probes.Probes
 }
 
-// Created a GRPC Connection Provider
+// Creates a GRPC Connection Provider.
 func New(config *Config, probesProvider *probes.Probes) *Connection {
 	return &Connection{
 		Config:         config,
@@ -34,13 +35,14 @@ func New(config *Config, probesProvider *probes.Probes) *Connection {
 	}
 }
 
-// Creates the GRPC connection
-func (p *Connection) Init() error {
+// Establishes the gRPC connection.
+func (p *Connection) Run() error {
 	addr := fmt.Sprintf("%s:%d", p.Config.Host, p.Config.Port)
 	logEntry := logrus.WithFields(logrus.Fields{
 		"service": p.Config.Prefix,
 		"addr":    addr,
 	})
+	logEntry.Info("Establishing GRPC connection")
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
 	defer cancel()
@@ -72,6 +74,7 @@ func (p *Connection) Init() error {
 	conn, err := grpc.DialContext(ctx, addr,
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{}),
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryInterceptors...)),
 		grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamInterceptors...)),
 	)
@@ -83,11 +86,6 @@ func (p *Connection) Init() error {
 	p.Conn = conn
 	logEntry.Info("GRPC connection opened")
 	p.initHealthClient()
-
-	// Add live probes if possible.
-	if p.Config.EnableHealth && p.probesProvider != nil {
-		p.probesProvider.AddLivenessProbes(p.livenessProbe)
-	}
 	return nil
 }
 
@@ -132,19 +130,4 @@ func (p *Connection) initHealthClient() {
 		logrus.WithField("service", p.Config.Prefix).Debug("GRPC Connection health disabled.")
 	}
 	p.Health = grpc_health_v1.NewHealthClient(p.Conn)
-}
-
-func (p *Connection) livenessProbe() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	logEntry := logrus.WithField("service", p.Config.Prefix)
-	err := p.CheckHealth(ctx)
-	if err != nil {
-		logEntry.WithError(err).Error("GRPC Connection liveness probe failed")
-		return err
-	}
-
-	logEntry.Debug("GRPC Connection liveness probe succeeded")
-	return nil
 }
