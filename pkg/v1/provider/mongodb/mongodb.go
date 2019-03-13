@@ -40,9 +40,9 @@ func (p *MongoDB) Init() error {
 	opts := options.Client()
 	opts.ApplyURI(p.Config.URI)
 	opts.SetConnectTimeout(p.Config.Timeout)
+	opts.SetHeartbeatInterval(p.Config.HeartbeatInterval)
 	opts.SetMaxPoolSize(p.Config.MaxPoolSize)
 	opts.SetMaxConnIdleTime(p.Config.MaxConnIdleTime)
-	opts.SetHeartbeatInterval(p.Config.HeartbeatInterval)
 
 	if p.appProvider != nil {
 		opts.SetAppName(p.appProvider.Name())
