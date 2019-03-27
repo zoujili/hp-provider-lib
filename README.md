@@ -339,6 +339,28 @@ NewConfigFromEnv() config:
 
 ---
 
+### ProxyProvider
+
+Creates a reverse proxy to an external service.
+
+```go
+exampleProxyConfig := proxy.NewConfigFromEnv("EXAMPLE_SERVICE")
+exampleProxy := proxy.New(exampleProxyConfig)
+st.MustInit(exampleProxy)
+```
+
+NewConfigFromEnv() config:
+
+| ENV key             | ENV value | Default value         | Description                                |
+| ------------------- | --------- | --------------------- | ------------------------------------------ |
+| {PREFIX}_ENABLED    | bool      | true                  | Can be used to disable the proxy           |
+| {PREFIX}_DEBUG      | bool      | false                 | Can be used to enable message body logging |
+| {PREFIX}_PORT       | int       | 4040                  | Port on which the proxy is listening       |
+| {PREFIX}_ENDPOINT   | string    | /                     | Endpoint on which the proxy is listening   |
+| {PREFIX}_TARGET_URL | string    | http://localhost:8080 | Absolute URL to the service                |
+
+---
+
 ## Middlewares
 Middlewares are used to add extra functionality around an existing HTTP handler. \
 Only some providers support middlewares.
