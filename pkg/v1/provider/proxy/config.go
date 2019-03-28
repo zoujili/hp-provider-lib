@@ -48,7 +48,7 @@ func NewConfigFromEnv(prefix string) *Config {
 		"port":       port,
 		"endpoint":   endpoint,
 		"target_url": targetURL,
-	}).Debug("Prometheus Config initialized")
+	}).Debugf("%s Proxy Config initialized", prefix)
 
 	return &Config{
 		Enabled:   enabled,
