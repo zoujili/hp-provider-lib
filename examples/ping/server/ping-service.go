@@ -2,37 +2,50 @@ package server
 
 import (
 	"errors"
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
-	context "golang.org/x/net/context"
+	"golang.org/x/net/context"
 )
 
 // PingService ...
 type PingService struct {
-	grpcServerProvider *provider.GRPCServer
+	provider.AbstractRunProvider
+
+	running             bool
+	grpcServerProvider  *grpc.Server
+	grpcGatewayProvider *gateway.Gateway
 }
 
 // NewPingService ...
-func NewPingService(grpcServerProvider *provider.GRPCServer) *PingService {
+func NewPingService(grpcServerProvider *grpc.Server, grpcGatewayProvider *gateway.Gateway) *PingService {
 	return &PingService{
-		grpcServerProvider: grpcServerProvider,
+		running:             false,
+		grpcServerProvider:  grpcServerProvider,
+		grpcGatewayProvider: grpcGatewayProvider,
 	}
 }
 
 // Init ...
 func (s *PingService) Init() error {
-	RegisterPingServiceServer(s.grpcServerProvider.Server, s)
+	gen.RegisterPingServiceServer(s.grpcServerProvider.Server, s)
 	return nil
 }
 
-// Close ...
-func (s *PingService) Close() error {
+func (s *PingService) Run() error {
+	if err := s.grpcGatewayProvider.RegisterServices(gen.RegisterPingServiceHandler); err != nil {
+		ctxlogrus.Extract(context.Background()).WithError(err).Errorf("Could not register gateway service handlers")
+		return err
+	}
+	s.SetRunning(true)
 	return nil
 }
 
 // Ping ...
-func (s *PingService) Ping(ctx context.Context, request *PingRequest) (*PingResponse, error) {
+func (s *PingService) Ping(ctx context.Context, request *gen.PingRequest) (*gen.PingResponse, error) {
 	logger := ctxlogrus.Extract(ctx)
 	logger.Info("hello from ping")
 
@@ -44,5 +57,5 @@ func (s *PingService) Ping(ctx context.Context, request *PingRequest) (*PingResp
 		return nil, errors.New("please error me")
 	}
 
-	return &PingResponse{Out: request.In}, nil
+	return &gen.PingResponse{Out: request.In}, nil
 }

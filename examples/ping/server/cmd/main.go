@@ -1,45 +1,56 @@
 package main
 
 import (
-	"fitstation-hp/lib-fs-provider-go/examples/ping/server"
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 )
 
 func main() {
-	stack := stack.New()
-	defer stack.MustClose()
+	st := stack.New()
+	defer st.MustClose()
 
-	logrusConfig := provider.NewLogrusConfigFromEnv()
-	logrusProvider := provider.NewLogrus(logrusConfig)
-	stack.MustInit(logrusProvider)
+	logrusConfig := logrus.NewConfigFromEnv()
+	logrusProvider := logrus.New(logrusConfig)
+	st.MustInit(logrusProvider)
 
-	appConfig := provider.NewAppConfigFromEnv()
-	appProvider := provider.NewApp(appConfig)
-	stack.MustInit(appProvider)
+	appConfig := app.NewConfigFromEnv()
+	appProvider := app.New(appConfig)
+	st.MustInit(appProvider)
 
-	prometheusConfig := provider.NewPrometheusConfigFromEnv()
-	prometheusProvider := provider.NewPrometheus(prometheusConfig)
-	stack.MustInit(prometheusProvider)
+	prometheusConfig := prometheus.NewConfigFromEnv()
+	prometheusProvider := prometheus.New(prometheusConfig)
+	st.MustInit(prometheusProvider)
 
-	jaegerConfig := provider.NewJaegerConfigFromEnv()
-	jaegerProvider := provider.NewJaeger(jaegerConfig, appProvider)
-	stack.MustInit(jaegerProvider)
+	jaegerConfig := jaeger.NewConfigFromEnv()
+	jaegerProvider := jaeger.New(jaegerConfig, appProvider)
+	st.MustInit(jaegerProvider)
 
-	pprofConfig := provider.NewPProfConfigFromEnv()
-	pprofProvider := provider.NewPProf(pprofConfig)
-	stack.MustInit(pprofProvider)
+	pprofConfig := pprof.NewConfigFromEnv()
+	pprofProvider := pprof.New(pprofConfig)
+	st.MustInit(pprofProvider)
 
-	probesConfig := provider.NewProbesConfigFromEnv()
-	probesProvider := provider.NewProbes(probesConfig)
-	stack.MustInit(probesProvider)
+	probesConfig := probes.NewConfigFromEnv()
+	probesProvider := probes.New(probesConfig)
+	st.MustInit(probesProvider)
 
-	grpcServerConfig := provider.NewGRPCServerConfigFromEnv()
-	grpcServerProvider := provider.NewGRPCServer(grpcServerConfig)
-	stack.MustInit(grpcServerProvider)
+	grpcServerConfig := grpc.NewConfigFromEnv()
+	grpcServerProvider := grpc.New(grpcServerConfig)
+	st.MustInit(grpcServerProvider)
 
-	pingService := server.NewPingService(grpcServerProvider)
-	stack.MustInit(pingService)
+	grpcGatewayConfig := gateway.NewConfigFromEnv()
+	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+	st.MustInit(grpcGatewayProvider)
 
-	stack.MustRun()
+	pingService := server.NewPingService(grpcServerProvider, grpcGatewayProvider)
+	st.MustInit(pingService)
+
+	st.MustRun()
 }

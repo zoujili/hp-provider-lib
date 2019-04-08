@@ -1,0 +1,28 @@
+## IDE specific ##
+
+# Eclipse
+.classpath
+.metadata
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+
+## Code specific ##
+
+# Go
+vendor/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
