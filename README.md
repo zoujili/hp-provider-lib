@@ -29,7 +29,9 @@ $ docker stop nats-lfpg-example-basic
 
 ```shell
 // Start Jaeger backend
-$ docker run -d --name jaeger \
+$ docker run --name jaeger-lfpg-example-ping \
+  -d \
+  --rm \
   -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
   -p 5775:5775/udp \
   -p 6831:6831/udp \
@@ -44,16 +46,18 @@ $ docker run -d --name jaeger \
 $ LOGRUS_FORMATTER=text APP_NAME=ping-server go run examples/ping/server/cmd/main.go
 
 // Run normal call
-$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go hello
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/grpc_client/main.go hello
 
 // Run call that panics on server side
-$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go panic
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/grpc_client/main.go panic
 
 // Run call that errors on server side
-$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/client/main.go error
+$ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/grpc_client/main.go error
 
 // open web browser at http://127.0.0.1:16686
 // to view traces
+
+$ docker stop jaeger-lfpg-example-ping
 ```
 
 ## Providers

@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server"
-	provider "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+
+	pb "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
+
 	"os"
 	"time"
+
+	provider "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -34,7 +37,7 @@ func main() {
 		}
 	}()
 
-	client := server.NewPingServiceClient(conn)
+	client := pb.NewPingServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -44,10 +47,10 @@ func main() {
 		in = os.Args[1]
 	}
 
-	res, err := client.Ping(ctx, &server.PingRequest{In: in})
+	res, err := client.Ping(ctx, &pb.PingRequest{In: in})
 	if err != nil {
 		logrus.WithError(err).Error("call failed")
+	} else {
+		fmt.Println(res.Out)
 	}
-
-	fmt.Println(res.Out)
 }
