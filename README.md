@@ -60,6 +60,14 @@ $ LOGRUS_FORMATTER=text APP_NAME=ping-client go run examples/ping/grpc_client/ma
 $ docker stop jaeger-lfpg-example-ping
 ```
 
+## Run GraphQL example
+
+```shell
+$ docker run --name nats-lfpg-example-graphql -d --rm -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
+$ LOGRUS_FORMATTER=text APP_NAME=graphql-server GRAPHQL_GRAPHIQL_ENABLED=true JWT_REQUIRED=false go run examples/graphql/main.go
+$ docker stop nats-lfpg-example-graphql
+```
+
 ## Providers
 
 Providers are used to add common functionality to the services. \
