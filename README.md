@@ -18,7 +18,11 @@ It has to be outside, since Go 1.11 by default doesn't support modules inside th
 ## Run basic examples
 
 ```shell
+$ docker run --name mongo-lfpg-example-basic -d --rm -p 27017:27017 mongo
+$ docker run --name nats-lfpg-example-basic -d --rm -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
 $ LOGRUS_FORMATTER=text APP_NAME=basic go run examples/basic/main.go
+$ docker stop mongo-lfpg-example-basic
+$ docker stop nats-lfpg-example-basic
 ```
 
 ## Run advanced examples
