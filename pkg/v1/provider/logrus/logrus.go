@@ -50,9 +50,7 @@ func NewLogger(level logrus.Level, formatter logrus.Formatter, output io.Writer)
 // Calls "ctxlogrus.Extract(ctx)", but returns a proper logger (instead of no-op) if no context logger is found.
 func GetContextEntry(ctx context.Context) *logrus.Entry {
 	entry := ctxlogrus.Extract(ctx)
-	logrus.WithField("entry", entry).Infof("LogEntry extracted")
 	if entry.Logger.Out == ioutil.Discard {
-		logrus.WithField("out", entry.Logger.Out).Infof("LogEntry is no-op logger")
 		return logrus.NewEntry(logrus.StandardLogger())
 	}
 	return entry
