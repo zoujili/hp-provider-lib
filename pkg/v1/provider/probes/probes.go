@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"net/http"
+	"net/http/httputil"
 
 	"github.com/sirupsen/logrus"
 )
@@ -69,6 +70,8 @@ func (p *Probes) Run() error {
 // This handler will check each liveness probe for errors.
 // Only if no errors have occurred, it will respond with an 200 OK. Otherwise there will be a 503.
 func (p *Probes) livenessHandler(res http.ResponseWriter, req *http.Request) {
+	reqDump, _ := httputil.DumpRequest(req, false)
+	logrus.WithField("req", string(reqDump)).Debug("Handling liveness request")
 	for _, probe := range p.livenessProbes {
 		if err := probe(); err != nil {
 			res.WriteHeader(http.StatusServiceUnavailable)
@@ -84,6 +87,8 @@ func (p *Probes) livenessHandler(res http.ResponseWriter, req *http.Request) {
 // This handler will check each readiness probe for errors.
 // Only if no errors have occurred, it will respond with an 200 OK. Otherwise there will be a 503.
 func (p *Probes) readinessHandler(res http.ResponseWriter, req *http.Request) {
+	reqDump, _ := httputil.DumpRequest(req, false)
+	logrus.WithField("req", string(reqDump)).Debug("Handling readiness request")
 	for _, probe := range p.readinessProbes {
 		if err := probe(); err != nil {
 			res.WriteHeader(http.StatusServiceUnavailable)
