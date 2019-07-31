@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"path"
 )
 
 const (
@@ -26,7 +27,7 @@ func NewConfigFromEnv() *Config {
 	name := v.GetString("NAME")
 
 	v.SetDefault("BASE_PATH", defaultBasePath)
-	basePath := v.GetString("BASE_PATH")
+	basePath := path.Clean("/" + v.GetString("BASE_PATH"))
 
 	logrus.WithFields(logrus.Fields{
 		"name":      name,
