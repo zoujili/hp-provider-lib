@@ -55,7 +55,7 @@ func main() {
 	st.MustInit(grpcServerProvider)
 
 	grpcGatewayConfig := gateway.NewConfigFromEnv()
-	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
 	st.MustInit(grpcGatewayProvider)
 
 	// Do other stuff here

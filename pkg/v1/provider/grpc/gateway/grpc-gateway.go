@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	server "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
 	"github.com/gogo/gateway"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -23,18 +24,21 @@ import (
 type Gateway struct {
 	provider.AbstractRunProvider
 
-	Config *Config
-	server *server.Server
+	Config      *Config
+	server      *server.Server
+	appProvider *app.App
+
 	client *grpc.ClientConn
 	mux    *runtime.ServeMux
 }
 
 // Creates a GRPC Gateway Provider.
 // Relies on the server to know where to forward the REST messages.
-func New(config *Config, server *server.Server) *Gateway {
+func New(config *Config, server *server.Server, appProvider *app.App) *Gateway {
 	return &Gateway{
-		Config: config,
-		server: server,
+		Config:      config,
+		server:      server,
+		appProvider: appProvider,
 	}
 }
 
@@ -48,10 +52,12 @@ func (p *Gateway) Run() error {
 		return err
 	}
 
+	basePath := p.appProvider.Config.BasePath + "/"
 	serverAddr := p.server.Listener.Addr().String()
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
 	logEntry := logrus.WithFields(logrus.Fields{
+		"basePath":   basePath,
 		"serverAddr": serverAddr,
 		"addr":       addr,
 	})
@@ -97,6 +103,7 @@ func (p *Gateway) Run() error {
 		Indent:       "  ",
 		OrigName:     true,
 	}
+
 	p.mux = runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
 		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
@@ -105,7 +112,7 @@ func (p *Gateway) Run() error {
 	p.SetRunning(true)
 
 	logEntry.Info("GRPC Gateway Provider launched")
-	if err := http.ListenAndServe(addr, p.mux); err != nil {
+	if err := http.ListenAndServe(addr, NewMuxWrapper(basePath, p.mux)); err != nil {
 		logEntry.WithError(err).Error("GRPC Gateway Provider launch failed")
 		return err
 	}

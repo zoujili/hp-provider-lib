@@ -7,6 +7,7 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	. "github.com/onsi/ginkgo"
@@ -52,7 +53,7 @@ var _ = Describe("GRPC gateway provider test", func() {
 				Port:       defaultPort,
 				LogPayload: true,
 				Enabled:    true,
-			}, server)
+			}, server, app.New(app.NewConfigFromEnv()))
 			err := p.Init()
 			Expect(err).NotTo(HaveOccurred())
 		})

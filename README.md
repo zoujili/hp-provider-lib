@@ -321,7 +321,7 @@ Will setup a HTTP server to act as REST gateway to the GRPC Server.
 
 ```go
 grpcGatewayConfig := gateway.NewConfigFromEnv()
-grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
 st.MustInit(grpcGatewayProvider)
 ```
 
@@ -483,7 +483,7 @@ func main() {
 
     // gRPC Gateway
     grpcGatewayConfig := gateway.NewConfigFromEnv()
-    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
     st.MustInit(grpcGatewayProvider)
 
     // Resources
