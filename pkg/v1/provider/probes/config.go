@@ -5,6 +5,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	defaultPort              = 8000
+	defaultLivenessEndpoint  = "/healthz"
+	defaultReadinessEndpoint = "/ready"
+)
+
 // Configuration for the Probes Provider.
 type Config struct {
 	Enabled           bool   // Whether or not the the HTTP service should be running.
@@ -22,13 +28,13 @@ func NewConfigFromEnv() *Config {
 	v.SetDefault("ENABLED", true)
 	enabled := v.GetBool("ENABLED")
 
-	v.SetDefault("PORT", 8000)
+	v.SetDefault("PORT", defaultPort)
 	port := v.GetInt("PORT")
 
-	v.SetDefault("LIVENESS_ENDPOINT", "/healthz")
+	v.SetDefault("LIVENESS_ENDPOINT", defaultLivenessEndpoint)
 	livenessEndpoint := v.GetString("LIVENESS_ENDPOINT")
 
-	v.SetDefault("READINESS_ENDPOINT", "/ready")
+	v.SetDefault("READINESS_ENDPOINT", defaultReadinessEndpoint)
 	readinessEndpoint := v.GetString("READINESS_ENDPOINT")
 
 	logrus.WithFields(logrus.Fields{

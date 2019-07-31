@@ -3,8 +3,10 @@ package probes
 import (
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"net/http"
 	"net/http/httputil"
+	"path"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,16 +27,18 @@ type ProbeFunc func() error
 type Probes struct {
 	provider.AbstractRunProvider
 
-	Config *Config
+	Config      *Config
+	appProvider *app.App
 
 	livenessProbes  []ProbeFunc
 	readinessProbes []ProbeFunc
 }
 
 // Creates a Probes Provider.
-func New(config *Config) *Probes {
+func New(config *Config, appProvider *app.App) *Probes {
 	return &Probes{
-		Config: config,
+		Config:      config,
+		appProvider: appProvider,
 	}
 }
 
@@ -46,16 +50,18 @@ func (p *Probes) Run() error {
 	}
 
 	addr := fmt.Sprintf(":%d", p.Config.Port)
+	livenessEndpoint := path.Join(p.appProvider.Config.BasePath, p.Config.LivenessEndpoint)
+	readinessEndpoint := path.Join(p.appProvider.Config.BasePath, p.Config.ReadinessEndpoint)
 
 	logEntry := logrus.WithFields(logrus.Fields{
 		"addr":               addr,
-		"liveness_endpoint":  p.Config.LivenessEndpoint,
-		"readiness_endpoint": p.Config.ReadinessEndpoint,
+		"liveness_endpoint":  livenessEndpoint,
+		"readiness_endpoint": readinessEndpoint,
 	})
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(p.Config.LivenessEndpoint, p.livenessHandler)
-	mux.HandleFunc(p.Config.ReadinessEndpoint, p.readinessHandler)
+	mux.HandleFunc(livenessEndpoint, p.livenessHandler)
+	mux.HandleFunc(readinessEndpoint, p.readinessHandler)
 	p.SetRunning(true)
 
 	logEntry.Info("Probes Provider Launched")

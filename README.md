@@ -143,6 +143,7 @@ NewConfigFromEnv() config:
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
 | APP_NAME | string | os.Args[0] = name of the binary | Application name |
+| BASE_PATH | string | / | Application base path<br>Will be prefixed to all provider paths |
 
 App provider exposes methods
 
@@ -221,7 +222,7 @@ These are mainly used by Kubernetes to check the state of the application.
 
 ```go
 probesConfig := probes.NewConfigFromEnv()
-probesProvider := probes.New(probesConfig)
+probesProvider := probes.New(probesConfig, appProvider)
 st.MustInit(probesProvider)
 ```
 
@@ -462,7 +463,7 @@ func main() {
 
     // Probes (liveness/readiness for Kubernetes)
     probesConfig := probes.NewConfigFromEnv()
-    probesProvider := probes.New(probesConfig)
+    probesProvider := probes.New(probesConfig, appProvider)
     st.MustInit(probesProvider)
 
     // MongoDB

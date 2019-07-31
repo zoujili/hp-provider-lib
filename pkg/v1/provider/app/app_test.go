@@ -31,5 +31,7 @@ var _ = Describe("App provider", func() {
 
 		Expect(p.Version()).ToNot(BeNil())
 		Expect(p.Version().String()).To(Equal(version.BuildString))
+
+		Expect(p.Config.BasePath).To(Equal(defaultBasePath))
 	})
 })

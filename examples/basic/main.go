@@ -39,7 +39,7 @@ func main() {
 	st.MustInit(pprofProvider)
 
 	probesConfig := probes.NewConfigFromEnv()
-	probesProvider := probes.New(probesConfig)
+	probesProvider := probes.New(probesConfig, appProvider)
 	st.MustInit(probesProvider)
 
 	mongodbConfig := mongodb.NewConfigFromEnv()
