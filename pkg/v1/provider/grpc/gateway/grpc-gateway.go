@@ -29,6 +29,7 @@ type Gateway struct {
 	appProvider *app.App
 
 	client *grpc.ClientConn
+	rest   *http.Server
 	mux    *runtime.ServeMux
 }
 
@@ -112,7 +113,8 @@ func (p *Gateway) Run() error {
 	p.SetRunning(true)
 
 	logEntry.Info("GRPC Gateway Provider launched")
-	if err := http.ListenAndServe(addr, NewMuxWrapper(basePath, p.mux)); err != nil {
+	p.rest = &http.Server{Addr: addr, Handler: NewMuxWrapper(basePath, p.mux)}
+	if err := p.rest.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("GRPC Gateway Provider launch failed")
 		return err
 	}
@@ -140,15 +142,18 @@ func (p *Gateway) RegisterServices(functions ...func(context.Context, *runtime.S
 
 // Closes the connection to the GRPC Provider.
 func (p *Gateway) Close() error {
-	if !p.Config.Enabled {
+	if !p.Config.Enabled || p.client == nil {
 		return nil
 	}
 
-	if p.client != nil {
-		if err := p.client.Close(); err != nil {
-			logrus.WithError(err).Errorf("Error while closing GRPC Gateway connection")
-			return err
-		}
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.rest.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing GRPC Gateway REST server")
+		return err
+	}
+	if err := p.client.Close(); err != nil {
+		logrus.WithError(err).Error("Error while closing GRPC Gateway connection to server")
+		return err
 	}
 
 	return nil
