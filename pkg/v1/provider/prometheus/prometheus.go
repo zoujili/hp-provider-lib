@@ -1,9 +1,11 @@
 package prometheus
 
 import (
+	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -15,6 +17,8 @@ type Prometheus struct {
 	provider.AbstractRunProvider
 
 	Config *Config
+
+	srv *http.Server
 }
 
 // Creates a Prometheus Provider.
@@ -40,12 +44,27 @@ func (p *Prometheus) Run() error {
 
 	mux := http.NewServeMux()
 	mux.Handle(p.Config.Endpoint, promhttp.Handler())
+	p.srv = &http.Server{Addr: addr, Handler: mux}
 	p.SetRunning(true)
 
 	logEntry.Info("Prometheus Provider launched")
-	if err := http.ListenAndServe(addr, mux); err != http.ErrServerClosed {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("Prometheus Provider launch failed")
 		return err
 	}
+
 	return nil
+}
+
+func (p *Prometheus) Close() error {
+	if !p.Config.Enabled || p.srv == nil {
+		return nil
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing Prometheus server")
+	}
+
+	return p.AbstractRunProvider.Close()
 }

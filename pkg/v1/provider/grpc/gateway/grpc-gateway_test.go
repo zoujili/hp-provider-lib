@@ -129,14 +129,12 @@ var _ = Describe("GRPC gateway provider test", func() {
 	})
 })
 
-// Resets the shutdown state of the HTTP REST server used by the Gateway, allowing it be be used again.
+// Resets the shutdown state of the HTTP REST grpcSrv used by the Gateway, allowing it be be used again.
+// It does this by using an unsafe pointer to the "inShutdown" field of http.Server and setting it to it's original value (0).
 func resetHTTPServer(p *Gateway) {
-	// Retrieve an unsafe pointer to the "inShutdown" field of http.Server (this is outside of tests a really bad idea!).
-	pv := reflect.ValueOf(p.rest)
+	pv := reflect.ValueOf(p.srv)
 	fv := reflect.Indirect(pv).FieldByName("inShutdown")
 	fp := unsafe.Pointer(fv.UnsafeAddr())
-	// Reset the "inShutdown" field to it's original value, to make sure the "http.Server.shuttingDown()" method returns true.
-	// Note: the field type will be changed to an http.atomicBool in a future Go version, which may require changing this again.
 	atomic.StoreInt32((*int32)(fp), 0)
 }
 

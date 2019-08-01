@@ -96,7 +96,7 @@ func (p *MongoDB) Close() error {
 		return err
 	}
 
-	return nil
+	return p.AbstractProvider.Close()
 }
 
 func (p *MongoDB) livenessProbe() error {

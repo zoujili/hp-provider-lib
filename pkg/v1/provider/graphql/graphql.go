@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
@@ -9,6 +10,7 @@ import (
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 // GraphQL Provider.
@@ -20,6 +22,8 @@ type GraphQL struct {
 	Config          *Config
 	schema          *graphql.Schema
 	middlewareChain []middleware.Middleware
+
+	srv *http.Server
 }
 
 // Creates a GraphQL Provider.
@@ -51,14 +55,30 @@ func (p *GraphQL) Run() error {
 		}
 		mux.Handle(p.Config.GraphiQLEndpoint, http.StripPrefix(p.Config.GraphiQLEndpoint, graphiqlHandler))
 	}
+
+	p.srv = &http.Server{Addr: addr, Handler: mux}
 	p.SetRunning(true)
 
 	logEntry.Info("GraphQL Provider launched")
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("GraphQL Provider launch failed")
 		return err
 	}
+
 	return nil
+}
+
+func (p *GraphQL) Close() error {
+	if p.srv == nil {
+		return p.AbstractRunProvider.Close()
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing GraphQL server")
+	}
+
+	return p.AbstractRunProvider.Close()
 }
 
 // Allows setting the GraphQL schema file.

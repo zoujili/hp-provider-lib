@@ -92,12 +92,12 @@ func (p *Connection) Close() error {
 	}
 	if p.Conn != nil {
 		if err := p.Conn.Close(); err != nil {
-			logrus.WithError(err).Error("Could not close GRPC connection")
+			logrus.WithError(err).Error("Error while closing GRPC connection")
 			return err
 		}
 	}
 
-	return nil
+	return p.AbstractProvider.Close()
 }
 
 func (p *Connection) CheckHealth(ctx context.Context) error {

@@ -25,20 +25,20 @@ type Gateway struct {
 	provider.AbstractRunProvider
 
 	Config      *Config
-	server      *server.Server
+	grpcSrv     *server.Server
 	appProvider *app.App
 
 	client *grpc.ClientConn
-	rest   *http.Server
+	srv    *http.Server
 	mux    *runtime.ServeMux
 }
 
 // Creates a GRPC Gateway Provider.
 // Relies on the server to know where to forward the REST messages.
-func New(config *Config, server *server.Server, appProvider *app.App) *Gateway {
+func New(config *Config, grpcSrv *server.Server, appProvider *app.App) *Gateway {
 	return &Gateway{
 		Config:      config,
-		server:      server,
+		grpcSrv:     grpcSrv,
 		appProvider: appProvider,
 	}
 }
@@ -49,12 +49,12 @@ func (p *Gateway) Run() error {
 		return nil
 	}
 
-	if err := provider.WaitForRunningProvider(p.server, 2); err != nil {
+	if err := provider.WaitForRunningProvider(p.grpcSrv, 2); err != nil {
 		return err
 	}
 
 	basePath := p.appProvider.Config.BasePath + "/"
-	serverAddr := p.server.Listener.Addr().String()
+	serverAddr := p.grpcSrv.Listener.Addr().String()
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
 	logEntry := logrus.WithFields(logrus.Fields{
@@ -109,12 +109,13 @@ func (p *Gateway) Run() error {
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
 		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
 	)
+
 	p.client = conn
+	p.srv = &http.Server{Addr: addr, Handler: NewMuxWrapper(basePath, p.mux)}
 	p.SetRunning(true)
 
 	logEntry.Info("GRPC Gateway Provider launched")
-	p.rest = &http.Server{Addr: addr, Handler: NewMuxWrapper(basePath, p.mux)}
-	if err := p.rest.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("GRPC Gateway Provider launch failed")
 		return err
 	}
@@ -128,7 +129,7 @@ func (p *Gateway) RegisterServices(functions ...func(context.Context, *runtime.S
 	if !p.Config.Enabled {
 		return nil
 	}
-	if err := provider.WaitForRunningProvider(p.server, 2); err != nil {
+	if err := provider.WaitForRunningProvider(p.grpcSrv, 2); err != nil {
 		return err
 	}
 
@@ -143,11 +144,11 @@ func (p *Gateway) RegisterServices(functions ...func(context.Context, *runtime.S
 // Closes the connection to the GRPC Provider.
 func (p *Gateway) Close() error {
 	if !p.Config.Enabled || p.client == nil {
-		return nil
+		return p.AbstractRunProvider.Close()
 	}
 
 	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
-	if err := p.rest.Shutdown(ctx); err != nil {
+	if err := p.srv.Shutdown(ctx); err != nil {
 		logrus.WithError(err).Error("Error while closing GRPC Gateway REST server")
 		return err
 	}
@@ -156,7 +157,7 @@ func (p *Gateway) Close() error {
 		return err
 	}
 
-	return nil
+	return p.AbstractRunProvider.Close()
 }
 
 func (p *Gateway) logDeciderFunc(ctx context.Context, fullMethodName string) bool {

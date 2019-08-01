@@ -1,12 +1,14 @@
 package probes
 
 import (
+	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"net/http"
 	"net/http/httputil"
 	"path"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -32,6 +34,8 @@ type Probes struct {
 
 	livenessProbes  []ProbeFunc
 	readinessProbes []ProbeFunc
+
+	srv *http.Server
 }
 
 // Creates a Probes Provider.
@@ -62,15 +66,30 @@ func (p *Probes) Run() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc(livenessEndpoint, p.livenessHandler)
 	mux.HandleFunc(readinessEndpoint, p.readinessHandler)
+
+	p.srv = &http.Server{Addr: addr, Handler: mux}
 	p.SetRunning(true)
 
 	logEntry.Info("Probes Provider Launched")
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("Probes Provider launch failed")
 		return err
 	}
 
 	return nil
+}
+
+func (p *Probes) Close() error {
+	if !p.Config.Enabled || p.srv == nil {
+		return p.AbstractRunProvider.Close()
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing Probes server")
+	}
+
+	return p.AbstractRunProvider.Close()
 }
 
 // This handler will check each liveness probe for errors.
