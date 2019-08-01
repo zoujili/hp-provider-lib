@@ -7,14 +7,18 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"reflect"
+	"sync/atomic"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 func TestGRPCGateway(t *testing.T) {
@@ -43,7 +47,7 @@ var _ = Describe("GRPC gateway provider test", func() {
 		Expect(server.IsRunning()).To(BeTrue())
 	})
 
-	It("Starts the GRPC gateway", func() {
+	It("Runs the GRPC gateway (no special settings)", func() {
 		logrus.SetLevel(logrus.DebugLevel)
 		var p *Gateway
 
@@ -52,12 +56,13 @@ var _ = Describe("GRPC gateway provider test", func() {
 				Port:       defaultPort,
 				LogPayload: true,
 				Enabled:    true,
-			}, server)
+			}, server, app.New(&app.Config{}))
 			err := p.Init()
 			Expect(err).NotTo(HaveOccurred())
 		})
 		By("Running the gateway", func() {
 			go func() {
+				defer GinkgoRecover()
 				err := p.Run()
 				Expect(err).NotTo(HaveOccurred())
 			}()
@@ -75,8 +80,63 @@ var _ = Describe("GRPC gateway provider test", func() {
 			Expect(res).NotTo(BeNil())
 			Expect(res.StatusCode).To(Equal(200))
 		})
+		By("Shutting down the gateway", func() {
+			err := p.Close()
+			Expect(err).ToNot(HaveOccurred())
+			resetHTTPServer(p)
+		})
+	})
+	It("Runs the GRPC gateway (with a basePath)", func() {
+		logrus.SetLevel(logrus.DebugLevel)
+		var p *Gateway
+
+		By("Creating and initializing the provider", func() {
+			p = New(&Config{
+				Port:       defaultPort,
+				LogPayload: true,
+				Enabled:    true,
+			}, server, app.New(&app.Config{
+				BasePath: "/srv/api",
+			}))
+			err := p.Init()
+			Expect(err).NotTo(HaveOccurred())
+		})
+		By("Running the gateway", func() {
+			go func() {
+				defer GinkgoRecover()
+				err := p.Run()
+				Expect(err).NotTo(HaveOccurred())
+			}()
+			err := provider.WaitForRunningProvider(p, 2*time.Second)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(p.IsRunning()).To(BeTrue())
+		})
+		By("Registering the gateway", func() {
+			err := p.RegisterServices(gen.RegisterPingServiceHandler)
+			Expect(err).NotTo(HaveOccurred())
+		})
+		By("Calling the gateway", func() {
+			res, err := http.Get(fmt.Sprintf("http://localhost:%d/srv/api/ping", defaultPort))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(res).NotTo(BeNil())
+			Expect(res.StatusCode).To(Equal(200))
+		})
+		By("Shutting down the gateway", func() {
+			err := p.Close()
+			Expect(err).ToNot(HaveOccurred())
+			resetHTTPServer(p)
+		})
 	})
 })
+
+// Resets the shutdown state of the HTTP REST grpcSrv used by the Gateway, allowing it be be used again.
+// It does this by using an unsafe pointer to the "inShutdown" field of http.Server and setting it to it's original value (0).
+func resetHTTPServer(p *Gateway) {
+	pv := reflect.ValueOf(p.srv)
+	fv := reflect.Indirect(pv).FieldByName("inShutdown")
+	fp := unsafe.Pointer(fv.UnsafeAddr())
+	atomic.StoreInt32((*int32)(fp), 0)
+}
 
 type TestService struct {
 }

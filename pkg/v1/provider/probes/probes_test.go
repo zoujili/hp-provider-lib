@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
@@ -34,7 +35,7 @@ var _ = Describe("Probes provider", func() {
 					Port:              port,
 					LivenessEndpoint:  livenessEndpoint,
 					ReadinessEndpoint: readinessEndpoint,
-				})
+				}, app.New(app.NewConfigFromEnv()))
 				err := p.Init()
 				Expect(err).NotTo(HaveOccurred())
 			})

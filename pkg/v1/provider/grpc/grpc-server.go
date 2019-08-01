@@ -111,7 +111,8 @@ func (p *Server) Run() error {
 // Shuts down the GRPC Server.
 func (p *Server) Close() error {
 	p.Server.GracefulStop()
-	return nil
+
+	return p.AbstractRunProvider.Close()
 }
 
 func (p *Server) authFunc(ctx context.Context) (context.Context, error) {

@@ -31,5 +31,37 @@ var _ = Describe("App provider", func() {
 
 		Expect(p.Version()).ToNot(BeNil())
 		Expect(p.Version().String()).To(Equal(version.BuildString))
+
+		Expect(p.Config.BasePath).To(Equal(defaultBasePath))
+	})
+
+	Context("Configuring the base path", func() {
+		It("Handles a path with suffixed and prefixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "/some/path/")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+		})
+		It("Handles a path without suffixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "/some/path")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+		})
+		It("Handles a path without prefixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "some/path/")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+		})
 	})
 })

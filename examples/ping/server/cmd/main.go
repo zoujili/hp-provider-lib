@@ -38,7 +38,7 @@ func main() {
 	st.MustInit(pprofProvider)
 
 	probesConfig := probes.NewConfigFromEnv()
-	probesProvider := probes.New(probesConfig)
+	probesProvider := probes.New(probesConfig, appProvider)
 	st.MustInit(probesProvider)
 
 	grpcServerConfig := grpc.NewConfigFromEnv()
@@ -46,7 +46,7 @@ func main() {
 	st.MustInit(grpcServerProvider)
 
 	grpcGatewayConfig := gateway.NewConfigFromEnv()
-	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+	grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
 	st.MustInit(grpcGatewayProvider)
 
 	pingService := server.NewPingService(grpcServerProvider, grpcGatewayProvider)

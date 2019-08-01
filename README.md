@@ -143,6 +143,7 @@ NewConfigFromEnv() config:
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
 | APP_NAME | string | os.Args[0] = name of the binary | Application name |
+| BASE_PATH | string | / | Application base path<br>Will be prefixed to all provider paths |
 
 App provider exposes methods
 
@@ -221,7 +222,7 @@ These are mainly used by Kubernetes to check the state of the application.
 
 ```go
 probesConfig := probes.NewConfigFromEnv()
-probesProvider := probes.New(probesConfig)
+probesProvider := probes.New(probesConfig, appProvider)
 st.MustInit(probesProvider)
 ```
 
@@ -320,7 +321,7 @@ Will setup a HTTP server to act as REST gateway to the GRPC Server.
 
 ```go
 grpcGatewayConfig := gateway.NewConfigFromEnv()
-grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
 st.MustInit(grpcGatewayProvider)
 ```
 
@@ -462,7 +463,7 @@ func main() {
 
     // Probes (liveness/readiness for Kubernetes)
     probesConfig := probes.NewConfigFromEnv()
-    probesProvider := probes.New(probesConfig)
+    probesProvider := probes.New(probesConfig, appProvider)
     st.MustInit(probesProvider)
 
     // MongoDB
@@ -482,7 +483,7 @@ func main() {
 
     // gRPC Gateway
     grpcGatewayConfig := gateway.NewConfigFromEnv()
-    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
     st.MustInit(grpcGatewayProvider)
 
     // Resources

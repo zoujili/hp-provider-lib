@@ -114,5 +114,5 @@ func (p *Nats) livenessProbe() error {
 	}
 
 	logrus.Debug("NATS liveness probe succeeded")
-	return nil
+	return p.AbstractProvider.Close()
 }
