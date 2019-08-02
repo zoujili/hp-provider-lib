@@ -7,7 +7,6 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	"net/http"
 	"net/http/httputil"
-	"path"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -54,8 +53,8 @@ func (p *Probes) Run() error {
 	}
 
 	addr := fmt.Sprintf(":%d", p.Config.Port)
-	livenessEndpoint := path.Join(p.appProvider.Config.BasePath, p.Config.LivenessEndpoint)
-	readinessEndpoint := path.Join(p.appProvider.Config.BasePath, p.Config.ReadinessEndpoint)
+	livenessEndpoint := p.appProvider.ParseEndpoint(p.Config.LivenessEndpoint)
+	readinessEndpoint := p.appProvider.ParseEndpoint(p.Config.ReadinessEndpoint)
 
 	logEntry := logrus.WithFields(logrus.Fields{
 		"addr":               addr,

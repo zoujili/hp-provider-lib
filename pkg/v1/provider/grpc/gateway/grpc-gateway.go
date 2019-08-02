@@ -53,7 +53,7 @@ func (p *Gateway) Run() error {
 		return err
 	}
 
-	basePath := p.appProvider.Config.BasePath + "/"
+	basePath := p.appProvider.ParsePath()
 	serverAddr := p.grpcSrv.Listener.Addr().String()
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
