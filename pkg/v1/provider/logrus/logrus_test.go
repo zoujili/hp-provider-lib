@@ -6,6 +6,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
@@ -116,6 +117,20 @@ var _ = Describe("Logrus provider", func() {
 			entry := GetContextEntry(ctx)
 			Expect(entry).To(Equal(customEntry))
 			Expect(entry).To(Equal(ctxlogrus.Extract(ctx)))
+		})
+	})
+	Context("Logging tags", func() {
+		It("Adds tags to both span and logEntry", func() {
+			ctx := context.Background()
+			span := mocktracer.New().StartSpan("test").(*mocktracer.MockSpan)
+			entry := LogTags(ctx, span, map[string]interface{}{"key1": "value", "key2": 5})
+			Expect(entry.Data).To(Equal(logrus.Fields{"key1": "value", "key2": 5}))
+			Expect(span.Tags()).To(Equal(map[string]interface{}{"key1": "value", "key2": 5}))
+		})
+		It("Adds tags to the logEntry if the span is nil", func() {
+			ctx := context.Background()
+			entry := LogTags(ctx, nil, map[string]interface{}{"key1": "value", "key2": 5})
+			Expect(entry.Data).To(Equal(logrus.Fields{"key1": "value", "key2": 5}))
 		})
 	})
 })
