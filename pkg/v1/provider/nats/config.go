@@ -1,7 +1,7 @@
 package nats
 
 import (
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"time"

@@ -56,7 +56,7 @@ var _ = Describe("Prometheus provider", func() {
 			Expect(err).ToNot(HaveOccurred())
 			body := string(bytes)
 			Expect(body).To(And(
-				ContainSubstring("go_goroutines 12"),
+				ContainSubstring("go_goroutines "), // The exact number of routines is unreliable.
 				ContainSubstring("testing_gauge 201"),
 			))
 		})

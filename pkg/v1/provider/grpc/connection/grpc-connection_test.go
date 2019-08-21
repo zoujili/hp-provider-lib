@@ -56,7 +56,6 @@ var _ = Describe("GRPC connection provider test", func() {
 				p = New(&Config{
 					Host:         defaultHost,
 					Port:         3030,
-					Timeout:      defaultTimeout * time.Second,
 					LogPayload:   true,
 					EnableHealth: true,
 				}, nil)
