@@ -143,7 +143,7 @@ NewConfigFromEnv() config:
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
 | APP_NAME | string | os.Args[0] = name of the binary | Application name |
-| BASE_PATH | string | / | Application base path<br>Will be prefixed to all provider paths |
+| APP_BASE_PATH | string | / | Application base path<br>Will be prefixed to all provider paths |
 
 App provider exposes methods
 
