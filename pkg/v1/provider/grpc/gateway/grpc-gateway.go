@@ -6,7 +6,6 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	server "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
-	"github.com/gogo/gateway"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -99,14 +98,16 @@ func (p *Gateway) Run() error {
 		return err
 	}
 
-	jsonpb := &gateway.JSONPb{
+	// TODO: Disabled the custom marshaller for now, since it's causing error messages to not be marshalled properly.
+	//       Since we're not sure of this marshaller even having any actual use, we should investigate if there is an issue to be fixed here.
+	/*jsonpb := &gateway.JSONPb{
 		EmitDefaults: true,
 		Indent:       "  ",
 		OrigName:     true,
-	}
+	}*/
 
 	p.mux = runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
+		//runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
 		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
 	)
 
