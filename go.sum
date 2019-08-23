@@ -1,7 +1,7 @@
 cloud.google.com/go v0.26.0 h1:e0WKqKTd5BnrG8aKH3J3h+QvEIQtSUcf2n5UZ5ZgLtQ=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
-github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190821072446-2107cbbeac20 h1:Atxkr3xefYZtPgMfiQFAHAGNanSG9u6BaTdKiDwYha4=
-github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190821072446-2107cbbeac20/go.mod h1:RGAH/bS8y9HNU2QDyaP+IWrRPe4W3DzD7kgxYiLuBxg=
+github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190823073220-13c0c58a5dbf h1:08RrdrkBL7lCiSoVxVmnSadBgZrd9jAJuyXtAkV4EL0=
+github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190823073220-13c0c58a5dbf/go.mod h1:VqP8J5nKr+UBOLJwfhTjns8thoMvDwKJ+K0UPMBH4rM=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
