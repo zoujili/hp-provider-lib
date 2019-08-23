@@ -31,4 +31,4 @@ require (
 	google.golang.org/grpc v1.23.0
 )
 
-replace github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go => github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190821072446-2107cbbeac20
+replace github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go => github.azc.ext.hp.com/fitstation-isaac/lib-fs-core-go v0.0.0-20190823072634-a2b137aba20c
