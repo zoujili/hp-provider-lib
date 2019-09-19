@@ -335,6 +335,27 @@ NewConfigFromEnv() config:
 
 ---
 
+### GRPCConnectionProvider
+
+Will enable communication with the GRPC Server, used for GRPC clients.
+
+The prefix is used to separate multiple GRPC connections.
+
+```go
+grpcConnConfig := connection.NewConfigFromEnv(prefix)
+grpcConnProvider := connection.New(grpcConnConfig, probesProvider)
+st.MustInit(grpcConnProvider)
+```
+
+NewConfigFromEnv() config:
+
+| ENV key | ENV value | Default value | Description |
+| --- | --- | --- | --- |
+| {PREFIX}_HOST | bool | true | |
+| {PREFIX}_PORT | int | 8080 | HTTP server port |
+| {PREFIX}_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
+| {PREFIX}_HEALTH_ENABLED | bool | true | Allows the CheckHealth() function to check the servers health |
+
 ### GraphQLProvider
 
 Will setup a HTTP server on which to expose a GraphQL endpoint.
