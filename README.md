@@ -351,8 +351,8 @@ NewConfigFromEnv() config:
 
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
-| {PREFIX}_HOST | bool | true | |
-| {PREFIX}_PORT | int | 8080 | HTTP server port |
+| {PREFIX}_HOST | bool | 127.0.0.1 | GRPC server hostname |
+| {PREFIX}_PORT | int | 3000 | GRPC server port |
 | {PREFIX}_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
 | {PREFIX}_HEALTH_ENABLED | bool | true | Allows the CheckHealth() function to check the servers health |
 
