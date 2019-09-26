@@ -6,7 +6,6 @@ import (
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
 	server "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
-	"github.com/gogo/gateway"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -63,6 +62,8 @@ func (p *Gateway) Run() error {
 		"addr":       addr,
 	})
 
+	jsonPbMarshaller := server.NewJsonPbMarshaller()
+	grpc_logrus.JsonPbMarshaller = jsonPbMarshaller
 	opts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
@@ -99,14 +100,8 @@ func (p *Gateway) Run() error {
 		return err
 	}
 
-	jsonpb := &gateway.JSONPb{
-		EmitDefaults: true,
-		Indent:       "  ",
-		OrigName:     true,
-	}
-
 	p.mux = runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &jsonPbMarshaller.JSONPb),
 		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
 	)
 

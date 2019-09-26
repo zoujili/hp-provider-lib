@@ -4,11 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"google.golang.org/grpc/health"
-	"google.golang.org/grpc/health/grpc_health_v1"
-	"net"
-	"time"
-
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -18,7 +13,11 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"net"
+	"time"
 )
 
 // GRPC Server Provider.
@@ -44,6 +43,7 @@ func New(config *Config) *Server {
 func (p *Server) Init() error {
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
+	grpc_logrus.JsonPbMarshaller = NewJsonPbMarshaller()
 	opts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
