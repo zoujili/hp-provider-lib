@@ -3,9 +3,9 @@ package grpc
 import (
 	"context"
 	"errors"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/test"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/examples/ping/server/gen"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

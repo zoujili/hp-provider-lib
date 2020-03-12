@@ -1,8 +1,8 @@
 package stack
 
 import (
-	p "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	lp "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
+	p "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	lp "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"

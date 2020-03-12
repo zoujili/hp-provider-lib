@@ -2,9 +2,9 @@ package mongodb
 
 import (
 	"context"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

@@ -3,7 +3,7 @@ package pprof
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"net/http"
 	"net/http/pprof"
 	"time"

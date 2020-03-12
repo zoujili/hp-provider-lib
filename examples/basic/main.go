@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc/gateway"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/jaeger"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/mongodb"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/nats"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/pprof"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/prometheus"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 )
 
 func main() {

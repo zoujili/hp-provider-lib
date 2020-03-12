@@ -2,7 +2,7 @@ package logrus
 
 import (
 	"context"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
