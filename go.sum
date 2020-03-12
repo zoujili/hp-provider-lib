@@ -114,6 +114,7 @@ github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/graph-gophers/graphql-go v0.0.0-20190724201507-010347b5f9e6 h1:9WiNlI9Cds5S5YITwRpRs8edNaq0nxTEymhDW20A1QE=
 github.com/graph-gophers/graphql-go v0.0.0-20190724201507-010347b5f9e6/go.mod h1:Au3iQ8DvDis8hZ4q2OzRcaKYlAsPt+fYvib5q4nIqu4=
+github.com/grpc-ecosystem/go-grpc-middleware v1.0.0/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=
 github.com/grpc-ecosystem/go-grpc-middleware v1.1.1-0.20190926100137-c5238449d49b h1:/l1KoHDAend8v/K9IYxUwznrMKdu91gVDJJ2ddc+XpQ=
 github.com/grpc-ecosystem/go-grpc-middleware v1.1.1-0.20190926100137-c5238449d49b/go.mod h1:7v1AvcThwKZbZhXU5kzSHYwR9yXQ1mpqOal1+khJS4E=
 github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 h1:Ovs26xHkKqVztRpIrF/92BcuyuQ/YW4NSIpoGtfXNho=
