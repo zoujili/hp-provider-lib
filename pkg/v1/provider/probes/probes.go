@@ -3,8 +3,8 @@ package probes
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
 	"net/http"
 	"net/http/httputil"
 	"time"

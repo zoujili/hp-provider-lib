@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/test"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os"

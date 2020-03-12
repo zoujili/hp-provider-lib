@@ -2,9 +2,9 @@ package resolver
 
 import (
 	"context"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware/jwt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/graphql"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/jwt"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/graphql"
 	"github.com/sirupsen/logrus"
 )
 

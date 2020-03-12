@@ -3,8 +3,8 @@ package connection
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"

@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"

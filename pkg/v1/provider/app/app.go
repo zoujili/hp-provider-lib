@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/version"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/sirupsen/logrus"
 	"path"
 )

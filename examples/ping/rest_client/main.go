@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	provider "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+	provider "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"

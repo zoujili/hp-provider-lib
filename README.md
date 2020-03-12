@@ -9,7 +9,7 @@ Examples can be found at the [bottom of this document](#Examples).
 
 If you want to use this in a service, just "go get it".
 ```shell
-go get -u github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go
+go get -u github.azc.ext.hp.com/hp-business-platform/lib-provider-go
 ```
 
 To work on this library, fork it and clone the repository outside of your $GOPATH. \
@@ -440,17 +440,17 @@ NewConfigFromEnv() config:
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc/gateway"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/nats"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/prometheus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 )
 
 func main() {
@@ -530,16 +530,16 @@ func main() {
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware/jwt"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/graphql"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/jwt"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/graphql"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/prometheus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 )
 
 func main() {
