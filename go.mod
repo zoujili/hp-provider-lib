@@ -1,7 +1,7 @@
 module github.azc.ext.hp.com/hp-business-platform/lib-provider-go
 
 require (
-	github.azc.ext.hp.com/hp-business-platform/lib-core-go v0.0.0-20200312020449-1456ca5d5b7d
+	github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/graphiql v0.2.2

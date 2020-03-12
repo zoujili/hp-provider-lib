@@ -1,7 +1,7 @@
 cloud.google.com/go v0.26.0 h1:e0WKqKTd5BnrG8aKH3J3h+QvEIQtSUcf2n5UZ5ZgLtQ=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
-github.azc.ext.hp.com/hp-business-platform/lib-core-go v0.0.0-20200312020449-1456ca5d5b7d h1:EOxAA7Fi5CM+YLEFny2/w+oH3IS4XeTLZ0ywXGa7dtA=
-github.azc.ext.hp.com/hp-business-platform/lib-core-go v0.0.0-20200312020449-1456ca5d5b7d/go.mod h1:LR8ks5GDwCg6tpTl/2D44T6CQBSe5dmY4GWy24X4sL4=
+github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0 h1:Nw3EdPCYp/J1VDkh6aO7Tv8Aa1/83moz9ff3cHwDO0M=
+github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0/go.mod h1:LR8ks5GDwCg6tpTl/2D44T6CQBSe5dmY4GWy24X4sL4=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
