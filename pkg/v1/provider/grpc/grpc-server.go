@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -20,6 +20,13 @@ import (
 	"time"
 )
 
+// when create a grpc server, you can custom yourself interceptor
+type CustomOpts struct {
+	UnaryInterceptor  []grpc.UnaryServerInterceptor
+	StreamInterceptor []grpc.StreamServerInterceptor
+	ServerOption      []grpc.ServerOption
+}
+
 // GRPC Server Provider.
 // Provides a Server that listens for GRPC traffic and forwards them to the configured handlers.
 // Also adds a bunch of useful interceptors for tracing, metrics and so on.
@@ -30,12 +37,14 @@ type Server struct {
 	Config   *Config
 	Listener net.Listener
 	Server   *grpc.Server
+	Opts     []CustomOpts
 }
 
 // Creates a GRPC Server Provider.
-func New(config *Config) *Server {
+func New(config *Config, customOpts ...CustomOpts) *Server {
 	return &Server{
 		Config: config,
+		Opts: customOpts,
 	}
 }
 
@@ -74,10 +83,20 @@ func (p *Server) Init() error {
 		streamInterceptors = append(streamInterceptors, grpc_logrus.PayloadStreamServerInterceptor(logger, p.logDeciderFunc))
 	}
 
-	p.Server = grpc.NewServer(
+	var serverOpts []grpc.ServerOption
+	for _, opt := range p.Opts{
+		unaryInterceptors = append(unaryInterceptors, opt.UnaryInterceptor...)
+		streamInterceptors = append(streamInterceptors, opt.StreamInterceptor...)
+		serverOpts = append(serverOpts, opt.ServerOption...)
+	}
+
+	serverOpts = append(
+		serverOpts,
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(unaryInterceptors...)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(streamInterceptors...)),
-	)
+		)
+
+	p.Server = grpc.NewServer(serverOpts...)
 
 	return nil
 }
