@@ -20,7 +20,7 @@ type Config struct {
 	URI               string        // URI where to find the MongoDB server (including protocol and port).
 	Database          string        // Database name to use.
 	Timeout           time.Duration // Maximum duration to wait until the initial connection with the database is established.
-	MaxPoolSize       uint16        // Maximum number of connections.
+	MaxPoolSize       uint64        // Maximum number of connections.
 	MaxConnIdleTime   time.Duration // Maximum idle time before a connection is removed from the pool.
 	HeartbeatInterval time.Duration // Interval between connection checks.
 }
@@ -41,7 +41,7 @@ func NewConfigFromEnv() *Config {
 	timeout := v.GetDuration("TIMEOUT") * time.Second
 
 	v.SetDefault("MAX_POOL_SIZE", defaultMaxPoolSize)
-	maxPoolSize := uint16(v.GetInt64("MAX_POOL_SIZE"))
+	maxPoolSize := v.GetUint64("MAX_POOL_SIZE")
 
 	v.SetDefault("MAX_CONN_IDLE_TIME", defaultMaxConnIdleTime)
 	maxConnIdleTime := v.GetDuration("MAX_CONN_IDLE_TIME") * time.Second

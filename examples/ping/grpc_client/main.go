@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/examples/ping/server/gen"
+	pb "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/examples/ping/server/gen"
 
 	"os"
 	"time"
 
-	provider "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+	provider "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

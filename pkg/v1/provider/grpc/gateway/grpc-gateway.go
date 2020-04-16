@@ -3,8 +3,9 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	server "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+	server "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -22,18 +23,22 @@ import (
 type Gateway struct {
 	provider.AbstractRunProvider
 
-	Config *Config
-	server *server.Server
+	Config      *Config
+	grpcSrv     *server.Server
+	appProvider *app.App
+
 	client *grpc.ClientConn
+	srv    *http.Server
 	mux    *runtime.ServeMux
 }
 
 // Creates a GRPC Gateway Provider.
 // Relies on the server to know where to forward the REST messages.
-func New(config *Config, server *server.Server) *Gateway {
+func New(config *Config, grpcSrv *server.Server, appProvider *app.App) *Gateway {
 	return &Gateway{
-		Config: config,
-		server: server,
+		Config:      config,
+		grpcSrv:     grpcSrv,
+		appProvider: appProvider,
 	}
 }
 
@@ -43,18 +48,22 @@ func (p *Gateway) Run() error {
 		return nil
 	}
 
-	if err := provider.WaitForRunningProvider(p.server, 2); err != nil {
+	if err := provider.WaitForRunningProvider(p.grpcSrv, 2); err != nil {
 		return err
 	}
 
-	serverAddr := p.server.Listener.Addr().String()
+	basePath := p.appProvider.ParsePath()
+	serverAddr := p.grpcSrv.Listener.Addr().String()
 	addr := fmt.Sprintf(":%d", p.Config.Port)
 
 	logEntry := logrus.WithFields(logrus.Fields{
+		"basePath":   basePath,
 		"serverAddr": serverAddr,
 		"addr":       addr,
 	})
 
+	jsonPbMarshaller := server.NewJsonPbMarshaller()
+	grpc_logrus.JsonPbMarshaller = jsonPbMarshaller
 	opts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
@@ -91,12 +100,17 @@ func (p *Gateway) Run() error {
 		return err
 	}
 
-	p.mux = runtime.NewServeMux()
+	p.mux = runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &jsonPbMarshaller.JSONPb),
+		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
+	)
+
 	p.client = conn
+	p.srv = &http.Server{Addr: addr, Handler: NewMuxWrapper(basePath, p.mux)}
 	p.SetRunning(true)
 
 	logEntry.Info("GRPC Gateway Provider launched")
-	if err := http.ListenAndServe(addr, p.mux); err != nil {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("GRPC Gateway Provider launch failed")
 		return err
 	}
@@ -110,7 +124,7 @@ func (p *Gateway) RegisterServices(functions ...func(context.Context, *runtime.S
 	if !p.Config.Enabled {
 		return nil
 	}
-	if err := provider.WaitForRunningProvider(p.server, 2); err != nil {
+	if err := provider.WaitForRunningProvider(p.grpcSrv, 2); err != nil {
 		return err
 	}
 
@@ -124,18 +138,21 @@ func (p *Gateway) RegisterServices(functions ...func(context.Context, *runtime.S
 
 // Closes the connection to the GRPC Provider.
 func (p *Gateway) Close() error {
-	if !p.Config.Enabled {
-		return nil
+	if !p.Config.Enabled || p.client == nil {
+		return p.AbstractRunProvider.Close()
 	}
 
-	if p.client != nil {
-		if err := p.client.Close(); err != nil {
-			logrus.WithError(err).Errorf("Error while closing GRPC Gateway connection")
-			return err
-		}
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing GRPC Gateway REST server")
+		return err
+	}
+	if err := p.client.Close(); err != nil {
+		logrus.WithError(err).Error("Error while closing GRPC Gateway connection to server")
+		return err
 	}
 
-	return nil
+	return p.AbstractRunProvider.Close()
 }
 
 func (p *Gateway) logDeciderFunc(ctx context.Context, fullMethodName string) bool {

@@ -1,9 +1,13 @@
 package probes
 
 import (
+	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
 	"net/http"
+	"net/http/httputil"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -24,16 +28,20 @@ type ProbeFunc func() error
 type Probes struct {
 	provider.AbstractRunProvider
 
-	Config *Config
+	Config      *Config
+	appProvider *app.App
 
 	livenessProbes  []ProbeFunc
 	readinessProbes []ProbeFunc
+
+	srv *http.Server
 }
 
 // Creates a Probes Provider.
-func New(config *Config) *Probes {
+func New(config *Config, appProvider *app.App) *Probes {
 	return &Probes{
-		Config: config,
+		Config:      config,
+		appProvider: appProvider,
 	}
 }
 
@@ -45,20 +53,24 @@ func (p *Probes) Run() error {
 	}
 
 	addr := fmt.Sprintf(":%d", p.Config.Port)
+	livenessEndpoint := p.appProvider.ParseEndpoint(p.Config.LivenessEndpoint)
+	readinessEndpoint := p.appProvider.ParseEndpoint(p.Config.ReadinessEndpoint)
 
 	logEntry := logrus.WithFields(logrus.Fields{
 		"addr":               addr,
-		"liveness_endpoint":  p.Config.LivenessEndpoint,
-		"readiness_endpoint": p.Config.ReadinessEndpoint,
+		"liveness_endpoint":  livenessEndpoint,
+		"readiness_endpoint": readinessEndpoint,
 	})
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(p.Config.LivenessEndpoint, p.livenessHandler)
-	mux.HandleFunc(p.Config.ReadinessEndpoint, p.readinessHandler)
+	mux.HandleFunc(livenessEndpoint, p.livenessHandler)
+	mux.HandleFunc(readinessEndpoint, p.readinessHandler)
+
+	p.srv = &http.Server{Addr: addr, Handler: mux}
 	p.SetRunning(true)
 
 	logEntry.Info("Probes Provider Launched")
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Error("Probes Provider launch failed")
 		return err
 	}
@@ -66,9 +78,24 @@ func (p *Probes) Run() error {
 	return nil
 }
 
+func (p *Probes) Close() error {
+	if !p.Config.Enabled || p.srv == nil {
+		return p.AbstractRunProvider.Close()
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Error("Error while closing Probes server")
+	}
+
+	return p.AbstractRunProvider.Close()
+}
+
 // This handler will check each liveness probe for errors.
 // Only if no errors have occurred, it will respond with an 200 OK. Otherwise there will be a 503.
 func (p *Probes) livenessHandler(res http.ResponseWriter, req *http.Request) {
+	reqDump, _ := httputil.DumpRequest(req, false)
+	logrus.WithField("req", string(reqDump)).Debug("Handling liveness request")
 	for _, probe := range p.livenessProbes {
 		if err := probe(); err != nil {
 			res.WriteHeader(http.StatusServiceUnavailable)
@@ -84,6 +111,8 @@ func (p *Probes) livenessHandler(res http.ResponseWriter, req *http.Request) {
 // This handler will check each readiness probe for errors.
 // Only if no errors have occurred, it will respond with an 200 OK. Otherwise there will be a 503.
 func (p *Probes) readinessHandler(res http.ResponseWriter, req *http.Request) {
+	reqDump, _ := httputil.DumpRequest(req, false)
+	logrus.WithField("req", string(reqDump)).Debug("Handling readiness request")
 	for _, probe := range p.readinessProbes {
 		if err := probe(); err != nil {
 			res.WriteHeader(http.StatusServiceUnavailable)

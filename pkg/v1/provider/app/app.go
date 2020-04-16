@@ -1,9 +1,10 @@
 package app
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/version"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/sirupsen/logrus"
+	"path"
 )
 
 // Application Provider.
@@ -38,4 +39,21 @@ func (p *App) Name() string {
 // Returns the Application version.
 func (p *App) Version() version.Version {
 	return version.CurrentVersion()
+}
+
+// Appends the given elements to the base path and returns a cleaned URL path.
+// The resulting path will always end with a "/".
+func (p *App) ParsePath(elem ...string) string {
+	res := p.ParseEndpoint(elem...)
+	if res != "/" {
+		res += "/"
+	}
+	return res
+}
+
+// Appends the given elements to the base path and returns a cleaned URL path.
+// The resulting path will not end with a "/", unless that's the only character it contains (root path).
+func (p *App) ParseEndpoint(elem ...string) string {
+	elem = append([]string{p.Config.BasePath}, elem...)
+	return path.Join(elem...)
 }

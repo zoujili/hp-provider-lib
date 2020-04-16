@@ -3,8 +3,8 @@ package connection
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -92,12 +92,12 @@ func (p *Connection) Close() error {
 	}
 	if p.Conn != nil {
 		if err := p.Conn.Close(); err != nil {
-			logrus.WithError(err).Error("Could not close GRPC connection")
+			logrus.WithError(err).Error("Error while closing GRPC connection")
 			return err
 		}
 	}
 
-	return nil
+	return p.AbstractProvider.Close()
 }
 
 func (p *Connection) CheckHealth(ctx context.Context) error {

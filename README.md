@@ -9,7 +9,7 @@ Examples can be found at the [bottom of this document](#Examples).
 
 If you want to use this in a service, just "go get it".
 ```shell
-go get -u github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go
+go get -u github.azc.ext.hp.com/hp-business-platform/lib-provider-go
 ```
 
 To work on this library, fork it and clone the repository outside of your $GOPATH. \
@@ -143,6 +143,7 @@ NewConfigFromEnv() config:
 | ENV key | ENV value | Default value | Description |
 | --- | --- | --- | --- |
 | APP_NAME | string | os.Args[0] = name of the binary | Application name |
+| APP_BASE_PATH | string | / | Application base path<br>Will be prefixed to all provider paths |
 
 App provider exposes methods
 
@@ -221,7 +222,7 @@ These are mainly used by Kubernetes to check the state of the application.
 
 ```go
 probesConfig := probes.NewConfigFromEnv()
-probesProvider := probes.New(probesConfig)
+probesProvider := probes.New(probesConfig, appProvider)
 st.MustInit(probesProvider)
 ```
 
@@ -320,7 +321,7 @@ Will setup a HTTP server to act as REST gateway to the GRPC Server.
 
 ```go
 grpcGatewayConfig := gateway.NewConfigFromEnv()
-grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
 st.MustInit(grpcGatewayProvider)
 ```
 
@@ -333,6 +334,27 @@ NewConfigFromEnv() config:
 | GRPC_GATEWAY_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
 
 ---
+
+### GRPCConnectionProvider
+
+Will enable communication with the GRPC Server, used for GRPC clients.
+
+The prefix is used to separate multiple GRPC connections.
+
+```go
+grpcConnConfig := connection.NewConfigFromEnv(prefix)
+grpcConnProvider := connection.New(grpcConnConfig, probesProvider)
+st.MustInit(grpcConnProvider)
+```
+
+NewConfigFromEnv() config:
+
+| ENV key | ENV value | Default value | Description |
+| --- | --- | --- | --- |
+| {PREFIX}_HOST | bool | 127.0.0.1 | GRPC server hostname |
+| {PREFIX}_PORT | int | 3000 | GRPC server port |
+| {PREFIX}_LOG_PAYLOAD | bool | false | Enable to log incoming and outgoing messages |
+| {PREFIX}_HEALTH_ENABLED | bool | true | Allows the CheckHealth() function to check the servers health |
 
 ### GraphQLProvider
 
@@ -418,17 +440,17 @@ NewConfigFromEnv() config:
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/grpc/gateway"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/nats"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc/gateway"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/nats"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/prometheus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 )
 
 func main() {
@@ -462,7 +484,7 @@ func main() {
 
     // Probes (liveness/readiness for Kubernetes)
     probesConfig := probes.NewConfigFromEnv()
-    probesProvider := probes.New(probesConfig)
+    probesProvider := probes.New(probesConfig, appProvider)
     st.MustInit(probesProvider)
 
     // MongoDB
@@ -482,7 +504,7 @@ func main() {
 
     // gRPC Gateway
     grpcGatewayConfig := gateway.NewConfigFromEnv()
-    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider)
+    grpcGatewayProvider := gateway.New(grpcGatewayConfig, grpcServerProvider, appProvider)
     st.MustInit(grpcGatewayProvider)
 
     // Resources
@@ -508,16 +530,16 @@ func main() {
 package main
 
 import (
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/middleware/jwt"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/graphql"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/jaeger"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/logrus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/mongodb"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/pprof"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/prometheus"
-    "github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/stack"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/jwt"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/graphql"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/jaeger"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/logrus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/mongodb"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/pprof"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/prometheus"
+    "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/stack"
 )
 
 func main() {

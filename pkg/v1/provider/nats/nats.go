@@ -3,13 +3,12 @@ package nats
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/probes"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/probes"
+	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
-	"time"
-
-	"github.com/nats-io/go-nats"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 // NATS Provider.
@@ -48,6 +47,9 @@ func (p *Nats) Init() error {
 	opts := []nats.Option{
 		nats.SetCustomDialer(cd),
 		nats.ReconnectWait(2 * time.Second),
+		nats.DisconnectErrHandler(func(conn *nats.Conn, err error) {
+			logrus.WithError(err).Error("NATS was disconnected")
+		}),
 	}
 
 	logEntry := logrus.WithField("address", p.Config.URI)
@@ -114,5 +116,5 @@ func (p *Nats) livenessProbe() error {
 	}
 
 	logrus.Debug("NATS liveness probe succeeded")
-	return nil
+	return p.AbstractProvider.Close()
 }

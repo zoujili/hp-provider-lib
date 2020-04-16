@@ -1,13 +1,15 @@
 package proxy
 
 import (
+	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // Proxy Provider.
@@ -17,6 +19,8 @@ type Proxy struct {
 
 	Config       *Config
 	ReverseProxy *httputil.ReverseProxy
+
+	srv *http.Server
 }
 
 // Creates a Proxy Provider.
@@ -56,13 +60,28 @@ func (p *Proxy) Run() error {
 		req.Host = req.URL.Host
 		p.ReverseProxy.ServeHTTP(res, req)
 	})
+
+	p.srv = &http.Server{Addr: addr, Handler: mux}
 	p.SetRunning(true)
 
 	logEntry.Infof("%s Proxy launched", strings.Title(p.Config.Prefix))
-	if err := http.ListenAndServe(addr, mux); err != http.ErrServerClosed {
+	if err := p.srv.ListenAndServe(); err != http.ErrServerClosed {
 		logEntry.WithError(err).Errorf("%s Proxy launch failed", strings.Title(p.Config.Prefix))
 		return err
 	}
-	return nil
 
+	return nil
+}
+
+func (p *Proxy) Close() error {
+	if !p.Config.Enabled || p.srv == nil {
+		return p.AbstractRunProvider.Close()
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Millisecond)
+	if err := p.srv.Shutdown(ctx); err != nil {
+		logrus.WithError(err).Errorf("Error while closing %s Proxy server", strings.Title(p.Config.Prefix))
+	}
+
+	return p.AbstractRunProvider.Close()
 }

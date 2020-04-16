@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"testing"
@@ -36,14 +36,20 @@ var _ = Describe("Utils", func() {
 			p1 := &TestProvider1{}
 			It("Waits for the provider to start", func() {
 				p2 := &TestProvider2{other: p1}
-				var err error
+				var p2Err error
 				go func() {
-					err = p2.Run()
+					p2Err = p2.Run()
 				}()
-				time.Sleep(10 * time.Millisecond) // Make sure it waits a bit.
-				_ = p1.Run()
-				time.Sleep(10 * time.Millisecond) // Give the provider time to find out the other provider is running.
-				Expect(err).ToNot(HaveOccurred())
+				Expect(p1.IsRunning()).To(BeFalse())
+				Expect(p2.IsRunning()).To(BeFalse())
+				// Give p2 time to detect that p1 isn't running yet.
+				time.Sleep(11 * time.Millisecond)
+				p1Err := p1.Run()
+				Expect(p1Err).ToNot(HaveOccurred())
+				Expect(p1.IsRunning()).To(BeTrue())
+				// Give p2 time to detect that p1 is running now.
+				time.Sleep(11 * time.Millisecond)
+				Expect(p2Err).ToNot(HaveOccurred())
 				Expect(p2.IsRunning()).To(BeTrue())
 			})
 		})

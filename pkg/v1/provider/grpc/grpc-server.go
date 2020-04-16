@@ -3,13 +3,8 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
-	"google.golang.org/grpc/health"
-	"google.golang.org/grpc/health/grpc_health_v1"
-	"net"
-	"time"
-
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -18,8 +13,19 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"net"
+	"time"
 )
+
+// when create a grpc server, you can custom yourself interceptor
+type CustomOpts struct {
+	UnaryInterceptor  []grpc.UnaryServerInterceptor
+	StreamInterceptor []grpc.StreamServerInterceptor
+	ServerOption      []grpc.ServerOption
+}
 
 // GRPC Server Provider.
 // Provides a Server that listens for GRPC traffic and forwards them to the configured handlers.
@@ -31,12 +37,14 @@ type Server struct {
 	Config   *Config
 	Listener net.Listener
 	Server   *grpc.Server
+	Opts     []CustomOpts
 }
 
 // Creates a GRPC Server Provider.
-func New(config *Config) *Server {
+func New(config *Config, customOpts ...CustomOpts) *Server {
 	return &Server{
 		Config: config,
+		Opts: customOpts,
 	}
 }
 
@@ -44,6 +52,7 @@ func New(config *Config) *Server {
 func (p *Server) Init() error {
 	logger := logrus.NewEntry(logrus.StandardLogger())
 
+	grpc_logrus.JsonPbMarshaller = NewJsonPbMarshaller()
 	opts := []grpc_logrus.Option{
 		grpc_logrus.WithDurationField(func(duration time.Duration) (key string, value interface{}) {
 			return "grpc.time_ns", duration.Nanoseconds()
@@ -74,10 +83,20 @@ func (p *Server) Init() error {
 		streamInterceptors = append(streamInterceptors, grpc_logrus.PayloadStreamServerInterceptor(logger, p.logDeciderFunc))
 	}
 
-	p.Server = grpc.NewServer(
+	var serverOpts []grpc.ServerOption
+	for _, opt := range p.Opts{
+		unaryInterceptors = append(unaryInterceptors, opt.UnaryInterceptor...)
+		streamInterceptors = append(streamInterceptors, opt.StreamInterceptor...)
+		serverOpts = append(serverOpts, opt.ServerOption...)
+	}
+
+	serverOpts = append(
+		serverOpts,
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(unaryInterceptors...)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(streamInterceptors...)),
-	)
+		)
+
+	p.Server = grpc.NewServer(serverOpts...)
 
 	return nil
 }
@@ -111,7 +130,8 @@ func (p *Server) Run() error {
 // Shuts down the GRPC Server.
 func (p *Server) Close() error {
 	p.Server.GracefulStop()
-	return nil
+
+	return p.AbstractRunProvider.Close()
 }
 
 func (p *Server) authFunc(ctx context.Context) (context.Context, error) {

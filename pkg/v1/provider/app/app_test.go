@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/test"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-core-go/pkg/v1/version"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/test"
+	"github.azc.ext.hp.com/hp-business-platform/lib-core-go/pkg/v1/version"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"os"
@@ -31,5 +31,52 @@ var _ = Describe("App provider", func() {
 
 		Expect(p.Version()).ToNot(BeNil())
 		Expect(p.Version().String()).To(Equal(version.BuildString))
+
+		Expect(p.ParseEndpoint()).To(Equal("/"))
+		Expect(p.ParseEndpoint("sub", "elem")).To(Equal("/sub/elem"))
+		Expect(p.ParsePath()).To(Equal("/"))
+		Expect(p.ParsePath("sub", "elem")).To(Equal("/sub/elem/"))
+	})
+
+	Context("Configuring the base path", func() {
+		It("Handles a path with suffixed and prefixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "/some/path/")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint()).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint("sub", "elem")).To(Equal("/some/path/sub/elem"))
+			Expect(p.ParsePath()).To(Equal("/some/path/"))
+			Expect(p.ParsePath("sub", "elem")).To(Equal("/some/path/sub/elem/"))
+		})
+		It("Handles a path without suffixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "/some/path")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint()).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint("sub", "elem")).To(Equal("/some/path/sub/elem"))
+			Expect(p.ParsePath()).To(Equal("/some/path/"))
+			Expect(p.ParsePath("sub", "elem")).To(Equal("/some/path/sub/elem/"))
+		})
+		It("Handles a path without prefixed slash", func() {
+			_ = os.Setenv("APP_BASE_PATH", "some/path/")
+			p := New(NewConfigFromEnv())
+
+			err := p.Init()
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(p.Config.BasePath).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint()).To(Equal("/some/path"))
+			Expect(p.ParseEndpoint("sub", "elem")).To(Equal("/some/path/sub/elem"))
+			Expect(p.ParsePath()).To(Equal("/some/path/"))
+			Expect(p.ParsePath("sub", "elem")).To(Equal("/some/path/sub/elem/"))
+		})
 	})
 })

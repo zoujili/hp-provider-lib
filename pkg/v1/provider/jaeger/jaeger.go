@@ -2,7 +2,8 @@ package jaeger
 
 import (
 	"fmt"
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider/app"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/app"
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"github.com/uber/jaeger-client-go/config"
@@ -13,6 +14,8 @@ import (
 // Jaeger Provider.
 // Enables OpenTracing support in the application, which is sent to a Jaeger agent.
 type Jaeger struct {
+	provider.AbstractProvider
+
 	Config      *Config
 	appProvider *app.App
 
@@ -52,7 +55,7 @@ func (p *Jaeger) Init() error {
 		config.ZipkinSharedRPCSpan(true),
 	)
 	if err != nil {
-		logrus.WithError(err).Error("Jaeger tracer creation failed")
+		logrus.WithError(err).Error("Jaeger Tracer Provider launch failed")
 		return err
 	}
 
@@ -66,9 +69,9 @@ func (p *Jaeger) Init() error {
 func (p *Jaeger) Close() error {
 	err := p.closer.Close()
 	if err != nil {
-		logrus.WithError(err).Info("Jaeger Provider Close Failed")
+		logrus.WithError(err).Info("Error while closing Jaeger tracer")
 		return err
 	}
 
-	return nil
+	return p.AbstractProvider.Close()
 }

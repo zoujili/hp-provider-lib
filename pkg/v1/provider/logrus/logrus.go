@@ -1,9 +1,13 @@
 package logrus
 
 import (
-	"github.azc.ext.hp.com/fitstation-hp/lib-fs-provider-go/pkg/v1/provider"
+	"context"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"io"
+	"io/ioutil"
 )
 
 // Logrus Provider.
@@ -41,4 +45,27 @@ func NewLogger(level logrus.Level, formatter logrus.Formatter, output io.Writer)
 	logger.SetFormatter(formatter)
 	logger.SetOutput(output)
 	return logger
+}
+
+// Retrieves a GRPC context logger.
+// Calls "ctxlogrus.Extract(ctx)", but returns a proper logger (instead of no-op) if no context logger is found.
+func GetContextEntry(ctx context.Context) *logrus.Entry {
+	entry := ctxlogrus.Extract(ctx)
+	if entry.Logger.Out == ioutil.Discard {
+		return logrus.NewEntry(logrus.StandardLogger())
+	}
+	return entry
+}
+
+// Adds logging tags to both logEntry and span.
+// Will return the logEntry as result.
+func LogTags(ctx context.Context, span opentracing.Span, tags map[string]interface{}) *logrus.Entry {
+	fields := make(logrus.Fields, len(tags))
+	for key, val := range tags {
+		if span != nil {
+			span.SetTag(key, val)
+		}
+		fields[key] = val
+	}
+	return GetContextEntry(ctx).WithFields(fields)
 }
