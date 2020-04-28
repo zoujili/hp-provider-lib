@@ -8,6 +8,10 @@ import (
 
 const (
 	defaultURI               = "mongodb://127.0.0.1:27017"
+	defaultHost              = "127.0.0.1:27017"
+	defaultParameter         = ""
+	defaultUser              = ""
+	defaultPassword          = ""
 	defaultDatabase          = "test"
 	defaultTimeout           = 20
 	defaultMaxPoolSize       = 16
@@ -31,8 +35,17 @@ func NewConfigFromEnv() *Config {
 	v.SetEnvPrefix("MONGODB")
 	v.AutomaticEnv()
 
-	v.SetDefault("URI", defaultURI)
-	uri := v.GetString("URI")
+	v.SetDefault("HOST", defaultHost)
+	host := v.GetString("HOST")
+
+	v.SetDefault("PARAMETER", defaultParameter)
+	parameter := v.GetString("PARAMETER")
+
+	v.SetDefault("USER", defaultUser)
+	user := v.GetString("USER")
+
+	v.SetDefault("PASSWORD", defaultPassword)
+	password := v.GetString("PARAMETER")
 
 	v.SetDefault("DATABASE", defaultDatabase)
 	database := v.GetString("DATABASE")
@@ -48,6 +61,20 @@ func NewConfigFromEnv() *Config {
 
 	v.SetDefault("HEARTBEAT_INTERVAL", defaultHeartbeatInterval)
 	heartbeatInterval := v.GetDuration("HEARTBEAT_INTERVAL") * time.Second
+
+	if parameter != "" && parameter[0] != '?' {
+		parameter = "?" + parameter
+	}
+
+	mongoDBLogin := user
+	if password != "" && mongoDBLogin != "" {
+		mongoDBLogin = mongoDBLogin + ":" + password
+	}
+	if mongoDBLogin != "" {
+		mongoDBLogin = mongoDBLogin + "@"
+	}
+
+	uri := "mongodb://" + mongoDBLogin + host + "/" + database + parameter
 
 	logrus.WithFields(logrus.Fields{
 		"uri":                uri,
