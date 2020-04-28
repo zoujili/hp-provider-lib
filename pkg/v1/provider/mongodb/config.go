@@ -45,7 +45,7 @@ func NewConfigFromEnv() *Config {
 	user := v.GetString("USER")
 
 	v.SetDefault("PASSWORD", defaultPassword)
-	password := v.GetString("PARAMETER")
+	password := v.GetString("PASSWORD")
 
 	v.SetDefault("DATABASE", defaultDatabase)
 	database := v.GetString("DATABASE")
