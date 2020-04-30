@@ -1,5 +1,7 @@
 module github.azc.ext.hp.com/hp-business-platform/lib-provider-go
 
+go 1.14
+
 require (
 	github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
