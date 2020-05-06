@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	defaultPortTest = 9090
+	defaultPortTest = 8888
 )
 
 func TestGRPCGateway(t *testing.T) {
