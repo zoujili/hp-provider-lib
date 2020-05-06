@@ -1,3 +1,3 @@
 .PHONY: test
 test:
-	ginkgo -r
+	ginkgo -r -v
