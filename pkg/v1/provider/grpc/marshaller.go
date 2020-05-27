@@ -17,6 +17,7 @@ func NewJsonPbMarshaller() *JsonPbMarshaller {
 	return &JsonPbMarshaller{
 		Marshaler: jsonpb.Marshaler{},
 		JSONPb: gateway.JSONPb{
+			EnumsAsInts: true,
 			EmitDefaults: true,
 			Indent:       "  ",
 			OrigName:     true,
