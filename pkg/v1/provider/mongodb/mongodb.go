@@ -51,7 +51,8 @@ func (p *MongoDB) Init() error {
 	ctx, cancel := context.WithTimeout(context.Background(), p.Config.Timeout)
 	defer cancel()
 
-	logEntry := logrus.WithField("address", p.Config.URI)
+	logEntry := logrus.WithField("address", p.Config.URI).WithField("time_out", p.Config.Timeout.String())
+
 	logEntry.Debug("Connecting to MongoDB server...")
 
 	// Create Client and connect to MongoDB.
