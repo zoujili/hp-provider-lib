@@ -3,8 +3,9 @@ module github.azc.ext.hp.com/hp-business-platform/lib-provider-go
 go 1.14
 
 require (
-	github.com/satori/go.uuid v1.2.0
 	github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0
+	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-proto-go v0.0.0-20200602024353-c0f1d002bae0
+	github.com/antihax/optional v1.0.0
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/graphiql v0.2.2
@@ -24,11 +25,14 @@ require (
 	github.com/onsi/gomega v1.6.0
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.1.0
+	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.4.0
+	github.com/stretchr/testify v1.4.0
 	github.com/uber-go/atomic v1.3.2 // indirect
 	github.com/uber/jaeger-client-go v2.16.0+incompatible
 	github.com/uber/jaeger-lib v2.0.0+incompatible
 	go.mongodb.org/mongo-driver v1.1.0
-	google.golang.org/grpc v1.23.0
+	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
+	google.golang.org/grpc v1.25.1
 )
