@@ -45,7 +45,7 @@ func StreamServerInterceptor() grpc.StreamServerInterceptor {
 		}
 
 		newCtx := metadata.AppendToOutgoingContext(ctx, jwt.Authorization, operator.Token())
-		newCtx = context.WithValue(ctx, authorizationInterceptorKey{}, operator)
+		newCtx = context.WithValue(newCtx, authorizationInterceptorKey{}, operator)
 		wrappedStream := grpc_middleware.WrapServerStream(ss)
 		wrappedStream.WrappedContext = newCtx
 		return handler(srv, wrappedStream)
