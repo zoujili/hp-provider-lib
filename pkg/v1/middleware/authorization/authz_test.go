@@ -1,11 +1,11 @@
-package authz_test
+package authorization_test
 
 import (
 	"context"
 	"testing"
 
 	gaiav1 "github.azc.ext.hp.com/hp-business-platform/lib-hpbp-proto-go/gen/proto/go/hpbp/gaia/v1"
-	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/authz"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/authorization"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )
@@ -17,11 +17,11 @@ func (m *mockUserGetter) UserID(_ context.Context) string {
 	return "29ab5fff-c81d-44f4-82b5-6d619d453f0f"
 }
 
-func getInterceptor(t *testing.T) *authz.Interceptor {
-	return authz.NewInterceptor(
-		authz.ConfigWithDefaultOrganizationGetter([]string{"project_id"}),
-		authz.ConfigWithAuthzClientAddr("https://hpbp-dev.hpbp.io/hpbp-authz/v1"),
-		authz.ConfigWithUserGetter(&mockUserGetter{}),
+func getInterceptor(t *testing.T) *authorization.Interceptor {
+	return authorization.NewInterceptor(
+		authorization.ConfigWithDefaultOrganizationGetter([]string{"project_id"}),
+		authorization.ConfigWithAuthzClientAddr("https://hpbp-dev.hpbp.io/hpbp-authorization/v1"),
+		authorization.ConfigWithUserGetter(&mockUserGetter{}),
 	)
 }
 
