@@ -1,4 +1,4 @@
-package authorization
+package authentication
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type authorizationInterceptorKey struct{}
+type authenticationInterceptorKey struct{}
 
 func FromInterceptorContext(ctx context.Context) *jwt.JwtOperator {
-	return ctx.Value(authorizationInterceptorKey{}).(*jwt.JwtOperator)
+	return ctx.Value(authenticationInterceptorKey{}).(*jwt.JwtOperator)
 }
 
-func CustomAuthorizationInterceptorOpts() (opt grpcProvider.CustomOpts) {
+func CustomAuthenticationInterceptorOpts() (opt grpcProvider.CustomOpts) {
 	return grpcProvider.CustomOpts{
 		UnaryInterceptor:  []grpc.UnaryServerInterceptor{UnaryServerInterceptor()},
 		StreamInterceptor: []grpc.StreamServerInterceptor{StreamServerInterceptor()},
@@ -31,7 +31,7 @@ func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		}
 
 		ctx = metadata.AppendToOutgoingContext(ctx, jwt.Authorization, operator.Token())
-		ctx = context.WithValue(ctx, authorizationInterceptorKey{}, operator)
+		ctx = context.WithValue(ctx, authenticationInterceptorKey{}, operator)
 		return handler(ctx, req)
 	}
 }
@@ -45,7 +45,7 @@ func StreamServerInterceptor() grpc.StreamServerInterceptor {
 		}
 
 		newCtx := metadata.AppendToOutgoingContext(ctx, jwt.Authorization, operator.Token())
-		newCtx = context.WithValue(newCtx, authorizationInterceptorKey{}, operator)
+		newCtx = context.WithValue(newCtx, authenticationInterceptorKey{}, operator)
 		wrappedStream := grpc_middleware.WrapServerStream(ss)
 		wrappedStream.WrappedContext = newCtx
 		return handler(srv, wrappedStream)
