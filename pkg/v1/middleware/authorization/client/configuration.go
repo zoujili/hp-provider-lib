@@ -61,7 +61,7 @@ type Configuration struct {
 
 func NewConfiguration() *Configuration {
 	cfg := &Configuration{
-		BasePath:      "http://hpbp-authz-service.hpbp/hpbp-authz/v1",
+		BasePath:      "http://hpbp-authorization-service.hpbp/hpbp-authorization/v1",
 		DefaultHeader: make(map[string]string),
 		UserAgent:     "Swagger-Codegen/1.0.0/go",
 	}

@@ -7,8 +7,8 @@ info:
   contact:
     name: "XiHe"
     email: "xi.he@hp.com"
-host: "hpbp-authz-service.hpbp"
-basePath: "/hpbp-authz/v1"
+host: "hpbp-authorization-service.hpbp"
+basePath: "/hpbp-authorization/v1"
 schemes:
 - "http"
 consumes:

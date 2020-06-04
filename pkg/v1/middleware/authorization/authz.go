@@ -1,10 +1,10 @@
-package authz
+package authorization
 
 import (
 	"context"
 	"net/http"
 
-	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/authz/client"
+	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/authorization/client"
 	"github.com/antihax/optional"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -22,15 +22,16 @@ type IOrganizationGetter interface {
 	ExternalOrganizationID(ctx context.Context, req interface{}) string
 }
 
-// Interceptor authz Interceptor implement the access control
+// Interceptor authorization Interceptor implement the access control
 type Interceptor struct {
+	// TODO replace client with sdk
 	authzClient *client.AuthorizationApiService
 	u           IUserGetter
 	org         IOrganizationGetter
 	skipper     Skipper
 }
 
-const defaultAuthzServiceAddr = "https://hpbp.hpbp.io/hpbp-authz/v1"
+const defaultAuthzServiceAddr = "https://hpbp.hpbp.io/hpbp-authorization/v1"
 
 // NewInterceptor .
 func NewInterceptor(confFuncs ...ConfigFunc) *Interceptor {
@@ -79,7 +80,7 @@ func (a *Interceptor) auth(ctx context.Context, userID, externalID, method, path
 	return result.Allow, err
 }
 
-// UnaryServerInterceptor authz Interceptor for unary request in grpc Service
+// UnaryServerInterceptor authorization Interceptor for unary request in grpc Service
 func (a *Interceptor) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		path := info.FullMethod
@@ -97,7 +98,7 @@ func (a *Interceptor) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	}
 }
 
-// StreamServerInterceptor authz Interceptor for stream request in grpc Service, it will not support organization this time
+// StreamServerInterceptor authorization Interceptor for stream request in grpc Service, it will not support organization this time
 func (a *Interceptor) StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		path := info.FullMethod

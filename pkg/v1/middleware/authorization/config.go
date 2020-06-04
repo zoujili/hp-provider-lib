@@ -1,4 +1,4 @@
-package authz
+package authorization
 
 type Config struct {
 	AuthzServiceAddr   string
