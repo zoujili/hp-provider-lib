@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/authorization/client"
-	"github.com/antihax/optional"
+	"github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go/gen/authz_service/client"
+	"github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go/gen/authz_service/client/authorization"
+	"github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go/gen/authz_service/models"
+	"github.com/go-openapi/strfmt"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -25,31 +27,33 @@ type IOrganizationGetter interface {
 // Interceptor authorization Interceptor implement the access control
 type Interceptor struct {
 	// TODO replace client with sdk
-	authzClient *client.AuthorizationApiService
+	authzClient authorization.ClientService
 	u           IUserGetter
 	org         IOrganizationGetter
 	skipper     Skipper
 }
 
-const defaultAuthzServiceAddr = "https://hpbp.hpbp.io/hpbp-authorization/v1"
+const defaultAuthzServiceHost = "hpbp.hpbp.io"
 
 // NewInterceptor .
 func NewInterceptor(confFuncs ...ConfigFunc) *Interceptor {
 	v := viper.New()
 	v.SetEnvPrefix("AUTHZ")
 	v.AutomaticEnv()
-	v.SetDefault("SERVICE_ADDR", defaultAuthzServiceAddr)
+	v.SetDefault("SERVICE_HOST", defaultAuthzServiceHost)
 	c := &Config{
-		AuthzServiceAddr: v.GetString("SERVICE_ADDR"),
+		AuthzServiceHost: v.GetString("SERVICE_HOST"),
 	}
 	for _, confFun := range confFuncs {
 		confFun(c)
 	}
-	apiClient := client.NewAPIClient(&client.Configuration{
-		BasePath: c.AuthzServiceAddr,
-	})
+
+	apiClient := client.NewHTTPClientWithConfig(
+		strfmt.Default,
+		client.DefaultTransportConfig().WithHost(c.AuthzServiceHost),
+	)
 	return &Interceptor{
-		authzClient: apiClient.AuthorizationApi,
+		authzClient: apiClient.Authorization,
 		u:           c.UserGetter,
 		org:         c.OrganizationGetter,
 	}
@@ -59,25 +63,30 @@ func (a *Interceptor) auth(ctx context.Context, userID, externalID, method, path
 	if a.skipper != nil && a.skipper(path) {
 		return true, nil
 	}
-	result, resp, err := a.authzClient.AuthorizeRequest(ctx, client.AuthorizationRequest{
-		Principal: &client.AuthorizationRequestPrincipal{
-			Id:    userID,
-			Type_: "user",
+	var user = "user"
+	var rbac = "true"
+	var abac = "false"
+	params := authorization.NewAuthorizeRequestParams().WithBody(&models.AuthorizationRequest{
+		Principal: &models.AuthorizationRequestPrincipal{
+			ID:   userID,
+			Type: &user,
 		},
-		Resource: &client.AuthorizationRequestResource{},
-		Request: &client.AuthorizationRequestRequest{
+		Resource: &models.AuthorizationRequestResource{},
+		Request: &models.AuthorizationRequestRequest{
 			Method:                 method,
 			Path:                   path,
-			ExternalOrganizationId: externalID,
+			ExternalOrganizationID: externalID,
 		},
-	}, &client.AuthorizationApiAuthorizeRequestOpts{
-		Rbac: optional.NewString("true"),
-		Abac: optional.NewString("false"),
-	})
-	if resp != nil && resp.StatusCode == http.StatusForbidden {
-		return false, nil
+	}).WithAbac(&abac).WithRbac(&rbac).WithContext(ctx)
+	resp, err := a.authzClient.AuthorizeRequest(params)
+
+	if err != nil {
+		if _, ok := err.(*authorization.AuthorizeRequestForbidden); ok {
+			return false, nil
+		}
+		return false, err
 	}
-	return result.Allow, err
+	return resp.Payload.Allow, err
 }
 
 // UnaryServerInterceptor authorization Interceptor for unary request in grpc Service
