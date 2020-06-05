@@ -1,12 +1,12 @@
 pipeline {
 
- agent any
+ agent {label 'dockerbuild'}
 
  options {
   buildDiscarder(logRotator(artifactDaysToKeepStr: '30', artifactNumToKeepStr: '15', daysToKeepStr: '150', numToKeepStr: '15'))
   disableConcurrentBuilds()
   ansiColor('xterm')
-  timeout(time: 10, unit: 'MINUTES')
+  timeout(time: 30, unit: 'MINUTES')
  }
 
  stages {
