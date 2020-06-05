@@ -45,9 +45,7 @@ pipeline {
       subject: "${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
       body: "${env.BUILD_URL}",
       attachLog: true,
-      recipientProviders: [
-       [$class: 'RequesterRecipientProvider']
-      ],
+      recipientProviders: [culprits(), requestor()],
       to: 'yong.jiang1@hp.com'
      )
     }
