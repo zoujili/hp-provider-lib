@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0
 	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-proto-go v0.0.0-20200602024353-c0f1d002bae0
-	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605021235-4e6c7958c14c // indirect
+	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605084432-54bcc730f055 // indirect
 	github.com/antihax/optional v1.0.0
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

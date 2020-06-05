@@ -7,6 +7,8 @@ github.azc.ext.hp.com/hp-business-platform/lib-hpbp-proto-go v0.0.0-202006020243
 github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200603025728-f0db6d8b1023 h1:kGxgaLTJhPIoRY5205wvRVoEW9cL9pjIPlKQhEKoxFE=
 github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605021235-4e6c7958c14c h1:/cEIEgYlTQZ65U4WQQSnAHOSpoaJDAWL/99SMrGrKxI=
 github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605021235-4e6c7958c14c/go.mod h1:WR0mUlREs6TQ/c5azKqZUp/EkkmNPiY76JswdHiNKYw=
+github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605084432-54bcc730f055 h1:iFfQMmPyzgwoU4QPBweaj59tC00DSu4eU22SW6OY4YY=
+github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605084432-54bcc730f055/go.mod h1:WR0mUlREs6TQ/c5azKqZUp/EkkmNPiY76JswdHiNKYw=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
