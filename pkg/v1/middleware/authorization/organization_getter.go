@@ -8,15 +8,17 @@ import (
 
 // DefaultOrganizationGetter .
 type DefaultOrganizationGetter struct {
-	organizationTags    []string // organizationTags is ordered, getter will get the organization_id from the req by tags
-	organizationTagsMap map[string]int
+	organizationTags      []string // organizationTags is ordered, getter will get the organization_id from the req by tags
+	organizationTagsMap   map[string]int
+	defaultOrganizationID string
 }
 
 // NewDefaultOrganizationGetter I suggest support organizationTags with hard code
-func NewDefaultOrganizationGetter(organizationTags []string) *DefaultOrganizationGetter {
+func NewDefaultOrganizationGetter(organizationTags []string, defaultOrganizationID string) *DefaultOrganizationGetter {
 	g := &DefaultOrganizationGetter{
-		organizationTags:    organizationTags,
-		organizationTagsMap: map[string]int{},
+		organizationTags:      organizationTags,
+		organizationTagsMap:   map[string]int{},
+		defaultOrganizationID: defaultOrganizationID,
 	}
 	for _, tag := range organizationTags {
 		g.organizationTagsMap[tag] = 1
@@ -55,6 +57,9 @@ func (g *DefaultOrganizationGetter) ExternalOrganizationID(_ context.Context, re
 		if orgMap[tag] != "" {
 			organizationID = orgMap[tag]
 		}
+	}
+	if organizationID == "" {
+		organizationID = g.defaultOrganizationID
 	}
 	return organizationID
 }

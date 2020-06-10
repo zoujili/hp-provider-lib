@@ -50,8 +50,8 @@ func ConfigWithOrganizationGetter(organizationGetter IOrganizationGetter) Config
 }
 
 // ConfigWithDefaultOrganizationGetter set default Organization Getter for authorization
-func ConfigWithDefaultOrganizationGetter(organizationTags []string) ConfigFunc {
+func ConfigWithDefaultOrganizationGetter(organizationTags []string, defaultOrganizationID string) ConfigFunc {
 	return func(c *Config) {
-		c.OrganizationGetter = NewDefaultOrganizationGetter(organizationTags)
+		c.OrganizationGetter = NewDefaultOrganizationGetter(organizationTags, defaultOrganizationID)
 	}
 }
