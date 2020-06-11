@@ -26,7 +26,6 @@ type IOrganizationGetter interface {
 
 // Interceptor authorization Interceptor implement the access control
 type Interceptor struct {
-	// TODO replace client with sdk
 	authzClient authorization.ClientService
 	u           IUserGetter
 	org         IOrganizationGetter
@@ -56,6 +55,7 @@ func NewInterceptor(confFuncs ...ConfigFunc) *Interceptor {
 		authzClient: apiClient.Authorization,
 		u:           c.UserGetter,
 		org:         c.OrganizationGetter,
+		skipper:     c.Skipper,
 	}
 }
 
