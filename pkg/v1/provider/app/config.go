@@ -1,10 +1,12 @@
 package app
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"os"
 	"path"
+	"strings"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -23,7 +25,8 @@ func NewConfigFromEnv() *Config {
 	v.SetEnvPrefix("APP")
 	v.AutomaticEnv()
 
-	v.SetDefault("NAME", os.Args[0])
+	paths := strings.Split(os.Args[0], "/")
+	v.SetDefault("NAME", paths[len(paths)-1])
 	name := v.GetString("NAME")
 
 	v.SetDefault("BASE_PATH", defaultBasePath)
