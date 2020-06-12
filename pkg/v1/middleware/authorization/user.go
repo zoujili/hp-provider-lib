@@ -16,6 +16,5 @@ func NewDefaultUserGetter() *DefaultUserGetter {
 
 // UserID implementation UserID for IUserGetter
 func (u *DefaultUserGetter) UserID(ctx context.Context) string {
-	authentication.FromInterceptorContext(ctx).GetUserID().String()
-	return ""
+	return authentication.FromInterceptorContext(ctx).GetUserID().String()
 }
