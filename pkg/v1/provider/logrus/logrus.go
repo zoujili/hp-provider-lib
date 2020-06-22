@@ -2,12 +2,15 @@ package logrus
 
 import (
 	"context"
+	"fmt"
 	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
+	"strings"
 )
 
 // Logrus Provider.
@@ -45,6 +48,33 @@ func NewLogger(level logrus.Level, formatter logrus.Formatter, output io.Writer)
 	logger.SetFormatter(formatter)
 	logger.SetOutput(output)
 	return logger
+}
+
+func WithError(err error) *logrus.Entry {
+	type stackTracer interface {
+		StackTrace() errors.StackTrace
+	}
+
+	out := logrus.NewEntry(logrus.StandardLogger())
+	var printStackTrace = func(pError stackTracer) {
+		st := pError.StackTrace()
+		depth := 3
+
+		valued := fmt.Sprintf("%+v", st[0:depth])
+		valued = strings.Replace(valued, "\t", "", -1)
+		stack := strings.Split(valued, "\n")
+		out = out.WithField("stack", stack[2:])
+	}
+
+	if err, ok := err.(stackTracer); ok {
+		printStackTrace(err)
+	}
+
+	if err, ok := errors.Cause(err).(stackTracer); ok {
+		printStackTrace(err)
+	}
+
+	return out.WithError(err)
 }
 
 // Retrieves a GRPC context logger.
