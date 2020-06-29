@@ -11,6 +11,7 @@
 *.iws
 *.iml
 *.ipr
+*.DS_Store
 
 # VS Code
 .vscode/

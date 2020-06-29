@@ -6,7 +6,6 @@ require (
 	github.azc.ext.hp.com/hp-business-platform/lib-core-go v1.0.0
 	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-proto-go v0.0.0-20200602024353-c0f1d002bae0
 	github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go v0.0.0-20200605084432-54bcc730f055
-	github.com/antihax/optional v1.0.0
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/friendsofgo/graphiql v0.2.2
@@ -14,7 +13,8 @@ require (
 	github.com/gogo/gateway v1.1.0
 	github.com/gogo/googleapis v1.3.0
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.3.2
+	github.com/golang-migrate/migrate/v4 v4.11.0
+	github.com/golang/protobuf v1.3.3
 	github.com/graph-gophers/graphql-go v0.0.0-20190724201507-010347b5f9e6
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.1-0.20190926100137-c5238449d49b
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
@@ -33,6 +33,5 @@ require (
 	github.com/uber/jaeger-client-go v2.16.0+incompatible
 	github.com/uber/jaeger-lib v2.0.0+incompatible
 	go.mongodb.org/mongo-driver v1.3.4
-	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
-	google.golang.org/grpc v1.25.1
+	google.golang.org/grpc v1.27.1
 )
