@@ -2,8 +2,12 @@ package tenant
 
 import (
 	"context"
+	"encoding/json"
+	"net/http"
+
+	"github.azc.ext.hp.com/hp-business-platform/hpbp-utils/errors"
 	grpcProvider "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -25,6 +29,26 @@ func CustomTenantInterceptorOpts() grpcProvider.CustomOpts {
 		UnaryInterceptor:  []grpc.UnaryServerInterceptor{UnaryServerInterceptor()},
 		StreamInterceptor: []grpc.StreamServerInterceptor{StreamServerInterceptor()},
 	}
+}
+
+// InjectTenant tenant global check
+func InjectTenant(h http.Handler) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		tenantID := r.Header.Get("X-HPBP-Tenant-ID")
+		if tenantID == "" {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			appError := errors.NotFoundError(nil).WithMessage("Could not get the X-HPBP-Tenant-ID in request headers")
+			w.WriteHeader(appError.Code)
+			json.NewEncoder(w).Encode(appError)
+			return
+		}
+		r = r.WithContext(context.WithValue(r.Context(), tenantInterceptorKey{}, tenantID))
+
+		h.ServeHTTP(w, r)
+	}
+
+	// converts a function to an implementation of an interface
+	return http.HandlerFunc(f)
 }
 
 func UnaryServerInterceptor() grpc.UnaryServerInterceptor {

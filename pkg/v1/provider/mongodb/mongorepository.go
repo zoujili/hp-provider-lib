@@ -2,6 +2,9 @@ package mongodb
 
 import (
 	"context"
+	"log"
+	"os"
+
 	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/middleware/tenant"
 	"github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider"
 	uuid "github.com/satori/go.uuid"
@@ -13,8 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
-	"os"
 )
 
 type IMongoRepository interface {
@@ -40,10 +41,9 @@ func (m MongoRepository) MongoClient() *mongo.Client {
 }
 
 func (m MongoRepository) MongoDatabase(ctx context.Context) *mongo.Database {
-	// MONGODB_URI  contains database_name
-	uri, err := connstring.Parse(m.mongoProvider.Config.URI)
-	if err == nil && len(uri.Database) > 0 {
-		return m.mongoProvider.Client.Database(uri.Database)
+	// multi-tenant support
+	if tenantID, ok := tenant.FromTenantInterceptorContext(ctx); ok {
+		return m.mongoProvider.Client.Database(tenantID)
 	}
 
 	// MONGODB_DATABASE set
@@ -51,9 +51,10 @@ func (m MongoRepository) MongoDatabase(ctx context.Context) *mongo.Database {
 		return m.mongoProvider.Database
 	}
 
-	// multi-tenant support
-	if tenantID, ok := tenant.FromTenantInterceptorContext(ctx); ok {
-		return m.mongoProvider.Client.Database(tenantID)
+	// MONGODB_URI  contains database_name
+	uri, err := connstring.Parse(m.mongoProvider.Config.URI)
+	if err == nil && len(uri.Database) > 0 {
+		return m.mongoProvider.Client.Database(uri.Database)
 	}
 
 	panic(status.Error(codes.Internal, "No database specified"))
