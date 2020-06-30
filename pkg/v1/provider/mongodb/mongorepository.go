@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -18,6 +19,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type GetDatabaseNameFromTenantID func(tenantID string) string
+
+func DefalutDatabaseNameGetter(databaseNameSuffix string) GetDatabaseNameFromTenantID {
+	return func(tenantID string) string {
+		return fmt.Sprintf("%s-%s", tenantID, databaseNameSuffix)
+	}
+}
+
 type IMongoRepository interface {
 	provider.Provider
 	MongoClient() *mongo.Client
@@ -27,7 +36,15 @@ type IMongoRepository interface {
 
 type MongoRepository struct {
 	provider.AbstractProvider
-	mongoProvider *MongoDB
+	mongoProvider      *MongoDB
+	databaseNameGetter GetDatabaseNameFromTenantID
+}
+
+func NewMongoRepositoryWithDatabaseNameGetter(mongoProvider *MongoDB, databaseNameGetter GetDatabaseNameFromTenantID) IMongoRepository {
+	return &MongoRepository{
+		mongoProvider:      mongoProvider,
+		databaseNameGetter: databaseNameGetter,
+	}
 }
 
 func NewMongoRepository(mongoProvider *MongoDB) IMongoRepository {
@@ -42,8 +59,8 @@ func (m MongoRepository) MongoClient() *mongo.Client {
 
 func (m MongoRepository) MongoDatabase(ctx context.Context) *mongo.Database {
 	// multi-tenant support
-	if tenantID, ok := tenant.FromTenantInterceptorContext(ctx); ok {
-		return m.mongoProvider.Client.Database(tenantID)
+	if tenantID, ok := tenant.FromTenantInterceptorContext(ctx); ok && m.databaseNameGetter != nil {
+		return m.mongoProvider.Client.Database(m.databaseNameGetter(tenantID))
 	}
 
 	// MONGODB_DATABASE set
