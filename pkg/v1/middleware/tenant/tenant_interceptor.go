@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.azc.ext.hp.com/hp-business-platform/hpbp-utils/errors"
 	grpcProvider "github.azc.ext.hp.com/hp-business-platform/lib-provider-go/pkg/v1/provider/grpc"
@@ -34,6 +35,10 @@ func CustomTenantInterceptorOpts() grpcProvider.CustomOpts {
 // InjectTenant tenant global check
 func InjectTenant(h http.Handler) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(strings.ToLower(r.RequestURI), "/health") {
+			h.ServeHTTP(w, r)
+			return
+		}
 		tenantID := r.Header.Get("X-HPBP-Tenant-ID")
 		if tenantID == "" {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
