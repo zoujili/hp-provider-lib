@@ -16,7 +16,7 @@ import (
 )
 
 // Grpc-Metadata-Tenant in HTTP header
-const HeaderTenant = "Tenant"
+const XHpbpTenantID = "X-HPBP-Tenant-ID"
 
 type tenantInterceptorKey struct{}
 
@@ -39,7 +39,7 @@ func InjectTenant(h http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 			return
 		}
-		tenantID := r.Header.Get("X-HPBP-Tenant-ID")
+		tenantID := r.Header.Get(XHpbpTenantID)
 		if tenantID == "" {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			appError := errors.NotFoundError(nil).WithMessage("Could not get the X-HPBP-Tenant-ID in request headers")
@@ -59,7 +59,7 @@ func InjectTenant(h http.Handler) http.Handler {
 func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if tenants := md.Get(HeaderTenant); len(tenants) > 0 {
+			if tenants := md.Get(XHpbpTenantID); len(tenants) > 0 {
 				ctx = context.WithValue(ctx, tenantInterceptorKey{}, tenants[0])
 				return handler(ctx, req)
 			}
@@ -72,7 +72,7 @@ func StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := ss.Context()
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			if tenants := md.Get(HeaderTenant); len(tenants) > 0 {
+			if tenants := md.Get(XHpbpTenantID); len(tenants) > 0 {
 				newCtx := context.WithValue(ctx, tenantInterceptorKey{}, tenants[0])
 				wrappedStream := grpc_middleware.WrapServerStream(ss)
 				wrappedStream.WrappedContext = newCtx
