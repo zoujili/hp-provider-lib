@@ -30,7 +30,7 @@ func TenantUnaryClientInterceptor() grpc.UnaryClientInterceptor {
 	}
 }
 
-func TenantStreamClientInterceptor(tenantID string) grpc.StreamClientInterceptor {
+func TenantStreamClientInterceptor() grpc.StreamClientInterceptor {
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 		tenantID, ok := FromTenantInterceptor(ctx)
 		if !ok {
