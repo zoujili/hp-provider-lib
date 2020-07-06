@@ -1,8 +1,11 @@
 package authorization
 
+import "github.azc.ext.hp.com/hp-business-platform/lib-hpbp-rest-go/gen/authz_service/client/authorization"
+
 // Config .
 type Config struct {
 	AuthzServiceHost   string
+	AuthzClient        authorization.ClientService
 	UserGetter         IUserGetter
 	OrganizationGetter IOrganizationGetter
 	Skipper            Skipper
@@ -53,5 +56,12 @@ func ConfigWithOrganizationGetter(organizationGetter IOrganizationGetter) Config
 func ConfigWithDefaultOrganizationGetter(organizationTags []string, defaultOrganizationID string) ConfigFunc {
 	return func(c *Config) {
 		c.OrganizationGetter = NewDefaultOrganizationGetter(organizationTags, defaultOrganizationID)
+	}
+}
+
+// ConfigWithAuthzClient set authz client
+func ConfigWithAuthzClient(authzClient authorization.ClientService) ConfigFunc {
+	return func(c *Config) {
+		c.AuthzClient = authzClient
 	}
 }

@@ -46,13 +46,18 @@ func NewInterceptor(confFuncs ...ConfigFunc) *Interceptor {
 	for _, confFun := range confFuncs {
 		confFun(c)
 	}
+	var authzClient authorization.ClientService
+	if c.AuthzClient != nil {
+		authzClient = c.AuthzClient
+	} else {
+		authzClient = client.NewHTTPClientWithConfig(
+			strfmt.Default,
+			client.DefaultTransportConfig().WithHost(c.AuthzServiceHost),
+		).Authorization
+	}
 
-	apiClient := client.NewHTTPClientWithConfig(
-		strfmt.Default,
-		client.DefaultTransportConfig().WithHost(c.AuthzServiceHost),
-	)
 	return &Interceptor{
-		authzClient: apiClient.Authorization,
+		authzClient: authzClient,
 		u:           c.UserGetter,
 		org:         c.OrganizationGetter,
 		skipper:     c.Skipper,
