@@ -65,9 +65,6 @@ func NewInterceptor(confFuncs ...ConfigFunc) *Interceptor {
 }
 
 func (a *Interceptor) auth(ctx context.Context, userID, externalID, method, path string) (bool, error) {
-	if a.skipper != nil && a.skipper(path) {
-		return true, nil
-	}
 	var user = "user"
 	var rbac = "true"
 	var abac = "false"
@@ -98,6 +95,9 @@ func (a *Interceptor) auth(ctx context.Context, userID, externalID, method, path
 func (a *Interceptor) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		path := info.FullMethod
+		if a.skipper != nil && a.skipper(path) {
+			return handler(ctx, req)
+		}
 		method := http.MethodPost
 		userID := a.u.UserID(ctx)
 		organizationID := a.org.ExternalOrganizationID(ctx, req)
@@ -116,6 +116,9 @@ func (a *Interceptor) UnaryServerInterceptor() grpc.UnaryServerInterceptor {
 func (a *Interceptor) StreamServerInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		path := info.FullMethod
+		if a.skipper != nil && a.skipper(path) {
+			return handler(srv, ss)
+		}
 		method := http.MethodPost
 		userID := a.u.UserID(context.TODO())
 		organizationID := a.org.ExternalOrganizationID(context.TODO(), nil)
